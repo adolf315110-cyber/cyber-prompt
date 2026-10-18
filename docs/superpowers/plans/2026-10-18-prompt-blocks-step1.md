@@ -1,6 +1,6 @@
 # 提示词方块 Step 1 实现计划（卡库 + 点卡插入 + 复制闭环）
 
-> **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
+> **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [x]`) syntax for tracking.
 
 **Goal:** 在 `D:\dream` 从零搭出 React + Vite + TS 项目，交付「预置卡库（125 张）→ 点卡插入槽位 → 实时预览 → 一键复制」闭环，数据层（localStorage）就位。
 
@@ -71,7 +71,7 @@ D:\dream
 **Files:**
 - Create: `package.json`, `.gitignore`, `index.html`, `tsconfig.json`, `vite.config.ts`, `src/main.tsx`, `src/App.tsx`, `src/styles.css`
 
-- [ ] **Step 1: 写 `package.json`**
+- [x] **Step 1: 写 `package.json`**
 
 ```json
 {
@@ -89,7 +89,7 @@ D:\dream
 }
 ```
 
-- [ ] **Step 2: 写 `.gitignore`**
+- [x] **Step 2: 写 `.gitignore`**
 
 ```
 node_modules/
@@ -97,7 +97,7 @@ dist/
 *.local
 ```
 
-- [ ] **Step 3: 写 `index.html`**
+- [x] **Step 3: 写 `index.html`**
 
 ```html
 <!doctype html>
@@ -114,7 +114,7 @@ dist/
 </html>
 ```
 
-- [ ] **Step 4: 写 `tsconfig.json`**
+- [x] **Step 4: 写 `tsconfig.json`**
 
 ```json
 {
@@ -139,7 +139,7 @@ dist/
 }
 ```
 
-- [ ] **Step 5: 写 `vite.config.ts`**
+- [x] **Step 5: 写 `vite.config.ts`**
 
 ```ts
 import { defineConfig } from 'vitest/config'
@@ -156,7 +156,7 @@ export default defineConfig({
 })
 ```
 
-- [ ] **Step 6: 写 `src/main.tsx`、`src/App.tsx`、`src/styles.css`（占位版，Task 15 会替换）**
+- [x] **Step 6: 写 `src/main.tsx`、`src/App.tsx`、`src/styles.css`（占位版，Task 15 会替换）**
 
 `src/main.tsx`:
 
@@ -193,7 +193,7 @@ body {
 }
 ```
 
-- [ ] **Step 7: 安装依赖**
+- [x] **Step 7: 安装依赖**
 
 Run:
 
@@ -204,17 +204,17 @@ npm install -D vite @vitejs/plugin-react typescript @types/react @types/react-do
 
 Expected: 两个命令都成功退出；`node_modules` 生成；`package.json` 中出现 dependencies 与 devDependencies 且版本已写入。（若 `vitest` 与 `vite` 8 发生 peer 冲突，按 npm 提示安装兼容大版本并记录在提交信息里。）
 
-- [ ] **Step 8: 类型检查**
+- [x] **Step 8: 类型检查**
 
 Run: `npx tsc --noEmit`
 Expected: 无输出、退出码 0。
 
-- [ ] **Step 9: 启动 dev server 验证骨架**
+- [x] **Step 9: 启动 dev server 验证骨架**
 
 Run（后台）: `npm run dev`
 Expected: 输出 `Local: http://localhost:5173/`；用浏览器打开该地址，页面显示「提示词方块」，Console 无 error。
 
-- [ ] **Step 10: 提交**
+- [x] **Step 10: 提交**
 
 ```powershell
 git add -A
@@ -230,7 +230,7 @@ git commit -m "chore: 脚手架（Vite + React + TS + vitest + singlefile）"
 - Test: `src/__tests__/cardUtils.test.ts`
 - Create: `src/lib/cardUtils.ts`
 
-- [ ] **Step 1: 写 `src/types.ts`（无逻辑，直接写）**
+- [x] **Step 1: 写 `src/types.ts`（无逻辑，直接写）**
 
 ```ts
 export type Category = 'sec-audit' | 'pentest' | 'coding' | 'output' | 'general'
@@ -307,7 +307,7 @@ export const MODE_LABELS: Record<Mode, string> = {
 }
 ```
 
-- [ ] **Step 2: 写失败的测试 `src/__tests__/cardUtils.test.ts`**
+- [x] **Step 2: 写失败的测试 `src/__tests__/cardUtils.test.ts`**
 
 ```ts
 import { describe, expect, it } from 'vitest'
@@ -356,12 +356,12 @@ describe('hasUnresolvedVars', () => {
 })
 ```
 
-- [ ] **Step 3: 跑测试确认失败**
+- [x] **Step 3: 跑测试确认失败**
 
 Run: `npx vitest run src/__tests__/cardUtils.test.ts`
 Expected: FAIL —— `Failed to resolve import "../lib/cardUtils"`（模块还不存在）。
 
-- [ ] **Step 4: 实现 `src/lib/cardUtils.ts`**
+- [x] **Step 4: 实现 `src/lib/cardUtils.ts`**
 
 ```ts
 import type { Card } from '../types'
@@ -390,12 +390,12 @@ export function hasUnresolvedVars(text: string): boolean {
 }
 ```
 
-- [ ] **Step 5: 跑测试确认通过**
+- [x] **Step 5: 跑测试确认通过**
 
 Run: `npx vitest run src/__tests__/cardUtils.test.ts`
 Expected: PASS —— 7 个用例全绿。
 
-- [ ] **Step 6: 提交**
+- [x] **Step 6: 提交**
 
 ```powershell
 git add -A
@@ -413,7 +413,7 @@ git commit -m "feat: 类型定义与卡片工具函数（变量提取/默认值/
 
 > 注：`compose.test.ts` 依赖 `defaultCompose()`。为避免顺序耦合，本任务直接把 `src/lib/storage.ts` 完整实现掉（Task 4 只补测试与验证，不再改实现）。
 
-- [ ] **Step 1: 写失败的测试 `src/__tests__/compose.test.ts`**
+- [x] **Step 1: 写失败的测试 `src/__tests__/compose.test.ts`**
 
 ```ts
 import { describe, expect, it } from 'vitest'
@@ -518,12 +518,12 @@ describe('composePrompt', () => {
 })
 ```
 
-- [ ] **Step 2: 跑测试确认失败**
+- [x] **Step 2: 跑测试确认失败**
 
 Run: `npx vitest run src/__tests__/compose.test.ts`
 Expected: FAIL —— `Failed to resolve import "../lib/compose"`。
 
-- [ ] **Step 3: 实现 `src/lib/storage.ts`（完整版，Task 4 只补测试）**
+- [x] **Step 3: 实现 `src/lib/storage.ts`（完整版，Task 4 只补测试）**
 
 ```ts
 import type { ComposeState, PersistedData } from '../types'
@@ -606,7 +606,7 @@ export function saveData(data: PersistedData, storage: StorageLike | null = loca
 }
 ```
 
-- [ ] **Step 4: 实现 `src/lib/compose.ts`**
+- [x] **Step 4: 实现 `src/lib/compose.ts`**
 
 ```ts
 import type { Card, ComposeState, SlotItem } from '../types'
@@ -667,12 +667,12 @@ export function composePrompt(state: ComposeState, cardsById: Map<string, Card>)
 }
 ```
 
-- [ ] **Step 5: 跑测试确认通过**
+- [x] **Step 5: 跑测试确认通过**
 
 Run: `npx vitest run src/__tests__/compose.test.ts`
 Expected: PASS —— 16 个用例全绿。
 
-- [ ] **Step 6: 提交**
+- [x] **Step 6: 提交**
 
 ```powershell
 git add -A
@@ -687,7 +687,7 @@ git commit -m "feat: 槽位拼装核心（compose）与本地存储基础（stor
 - Test: `src/__tests__/reducer.test.ts`
 - Create: `src/lib/reducer.ts`
 
-- [ ] **Step 1: 写失败的测试 `src/__tests__/reducer.test.ts`**
+- [x] **Step 1: 写失败的测试 `src/__tests__/reducer.test.ts`**
 
 ```ts
 import { describe, expect, it } from 'vitest'
@@ -781,12 +781,12 @@ describe('appReducer', () => {
 })
 ```
 
-- [ ] **Step 2: 跑测试确认失败**
+- [x] **Step 2: 跑测试确认失败**
 
 Run: `npx vitest run src/__tests__/reducer.test.ts`
 Expected: FAIL —— `Failed to resolve import "../lib/reducer"`。
 
-- [ ] **Step 3: 实现 `src/lib/reducer.ts`**
+- [x] **Step 3: 实现 `src/lib/reducer.ts`**
 
 ```ts
 import type { ComposeState, Mode, PersistedData, SlotItem } from '../types'
@@ -861,12 +861,12 @@ export function appReducer(state: PersistedData, action: AppAction): PersistedDa
 }
 ```
 
-- [ ] **Step 4: 跑测试确认通过**
+- [x] **Step 4: 跑测试确认通过**
 
 Run: `npx vitest run src/__tests__/reducer.test.ts`
 Expected: PASS —— 9 个用例全绿。
 
-- [ ] **Step 5: 提交**
+- [x] **Step 5: 提交**
 
 ```powershell
 git add -A
@@ -881,7 +881,7 @@ git commit -m "feat: 应用状态 reducer（插入/移除/启停/排序/变量/�
 - Test: `src/__tests__/storage.test.ts`
 - 验证: `src/lib/storage.ts`（Task 2 已写，本任务不改实现，除非测试暴露缺陷）
 
-- [ ] **Step 1: 写测试 `src/__tests__/storage.test.ts`**
+- [x] **Step 1: 写测试 `src/__tests__/storage.test.ts`**
 
 ```ts
 import { describe, expect, it } from 'vitest'
@@ -954,12 +954,12 @@ describe('loadData / saveData', () => {
 })
 ```
 
-- [ ] **Step 2: 跑测试**
+- [x] **Step 2: 跑测试**
 
 Run: `npx vitest run src/__tests__/storage.test.ts`
 Expected: PASS —— 10 个用例全绿（若失败，按测试描述修正 `src/lib/storage.ts`，修正后重跑直到全绿）。
 
-- [ ] **Step 3: 全量测试 + 类型检查**
+- [x] **Step 3: 全量测试 + 类型检查**
 
 Run: `npm run test`
 Expected: 4 个测试文件全绿（cardUtils / compose / reducer / storage）。
@@ -967,7 +967,7 @@ Expected: 4 个测试文件全绿（cardUtils / compose / reducer / storage）�
 Run: `npx tsc --noEmit`
 Expected: 无输出、退出码 0。
 
-- [ ] **Step 4: 提交**
+- [x] **Step 4: 提交**
 
 ```powershell
 git add -A
@@ -983,7 +983,7 @@ git commit -m "test: 存储读写与降级路径测试补齐"
 - Create: `src/data/preset/secAudit.ts`、`pentest.ts`、`coding.ts`、`output.ts`、`general.ts`（本任务先建空数组骨架）
 - Test: `src/__tests__/presetCards.test.ts`
 
-- [ ] **Step 1: 写 `src/data/presetCards.ts`（汇总入口）**
+- [x] **Step 1: 写 `src/data/presetCards.ts`（汇总入口）**
 
 ```ts
 import type { Card } from '../types'
@@ -1003,7 +1003,7 @@ export const PRESET_CARDS: Card[] = [
 ]
 ```
 
-- [ ] **Step 2: 写 5 个分类文件骨架（先空数组 + 文件头规范注释）**
+- [x] **Step 2: 写 5 个分类文件骨架（先空数组 + 文件头规范注释）**
 
 以 `src/data/preset/secAudit.ts` 为例（其余 4 个文件同构，注释里的分类名/数量/前缀分别替换）：
 
@@ -1032,7 +1032,7 @@ export const SEC_AUDIT_CARDS: Card[] = []
 - `output.ts` → `export const OUTPUT_CARDS: Card[] = []`，注释「输出格式 · 20 张」，id 前缀 `builtin:output-NN`
 - `general.ts` → `export const GENERAL_CARDS: Card[] = []`，注释「通用 · 20 张」，id 前缀 `builtin:general-NN`
 
-- [ ] **Step 3: 写 `src/__tests__/presetCards.test.ts`（完整校验）**
+- [x] **Step 3: 写 `src/__tests__/presetCards.test.ts`（完整校验）**
 
 ```ts
 import { describe, expect, it } from 'vitest'
@@ -1110,12 +1110,12 @@ describe('预置卡库', () => {
 })
 ```
 
-- [ ] **Step 4: 跑测试确认「红」**
+- [x] **Step 4: 跑测试确认「红」**
 
 Run: `npx vitest run src/__tests__/presetCards.test.ts`
 Expected: FAIL —— 6 个数量断言全红（0 !== 期望值）、总数红；唯一性类断言会通过（空库不重复）。这是预期的起点。
 
-- [ ] **Step 5: 提交骨架**
+- [x] **Step 5: 提交骨架**
 
 ```powershell
 git add -A
@@ -1181,19 +1181,19 @@ git commit -m "test: 预置卡库校验（数量/唯一性/字段/变量登记�
 },
 ```
 
-- [ ] **Step 1: 把 30 张卡写入 `src/data/preset/secAudit.ts` 的数组中（01-04 用上面锚点，05-30 按主题池创作）**
+- [x] **Step 1: 把 30 张卡写入 `src/data/preset/secAudit.ts` 的数组中（01-04 用上面锚点，05-30 按主题池创作）**
 
-- [ ] **Step 2: 跑本类别测试**
+- [x] **Step 2: 跑本类别测试**
 
 Run: `npx vitest run src/__tests__/presetCards.test.ts -t "安全审计"`
 Expected: PASS —— `【安全审计】数量为 30` 绿。
 
-- [ ] **Step 3: 类型检查**
+- [x] **Step 3: 类型检查**
 
 Run: `npx tsc --noEmit`
 Expected: 无输出、退出码 0。
 
-- [ ] **Step 4: 提交**
+- [x] **Step 4: 提交**
 
 ```powershell
 git add -A
@@ -1258,14 +1258,14 @@ git commit -m "feat(cards): 安全审计 30 张（污点分析/越权/注入/供
 },
 ```
 
-- [ ] **Step 1: 写入 30 张卡（01-04 用锚点，05-30 按主题池创作）**
+- [x] **Step 1: 写入 30 张卡（01-04 用锚点，05-30 按主题池创作）**
 
-- [ ] **Step 2: 跑本类别测试**
+- [x] **Step 2: 跑本类别测试**
 
 Run: `npx vitest run src/__tests__/presetCards.test.ts -t "渗透测试"`
 Expected: PASS —— `【渗透测试】数量为 30` 绿。
 
-- [ ] **Step 3: 提交**
+- [x] **Step 3: 提交**
 
 ```powershell
 git add -A
@@ -1333,14 +1333,14 @@ git commit -m "feat(cards): 渗透测试 30 张（信息收集/认证/注入验�
 },
 ```
 
-- [ ] **Step 1: 写入 25 张卡（01-04 用锚点，05-25 按主题池创作）**
+- [x] **Step 1: 写入 25 张卡（01-04 用锚点，05-25 按主题池创作）**
 
-- [ ] **Step 2: 跑本类别测试**
+- [x] **Step 2: 跑本类别测试**
 
 Run: `npx vitest run src/__tests__/presetCards.test.ts -t "编程"`
 Expected: PASS —— `【编程】数量为 25` 绿。
 
-- [ ] **Step 3: 提交**
+- [x] **Step 3: 提交**
 
 ```powershell
 git add -A
@@ -1405,14 +1405,14 @@ git commit -m "feat(cards): 编程 25 张（调试/重构/测试/评审）"
 },
 ```
 
-- [ ] **Step 1: 写入 20 张卡（01-04 用锚点，05-20 按主题池创作）**
+- [x] **Step 1: 写入 20 张卡（01-04 用锚点，05-20 按主题池创作）**
 
-- [ ] **Step 2: 跑本类别测试**
+- [x] **Step 2: 跑本类别测试**
 
 Run: `npx vitest run src/__tests__/presetCards.test.ts -t "输出格式"`
 Expected: PASS —— `【输出格式】数量为 20` 绿。
 
-- [ ] **Step 3: 提交**
+- [x] **Step 3: 提交**
 
 ```powershell
 git add -A
@@ -1477,14 +1477,14 @@ git commit -m "feat(cards): 输出格式 20 张（表格/CVSS/篇幅/证据）"
 },
 ```
 
-- [ ] **Step 1: 写入 20 张卡（01-04 用锚点，05-20 按主题池创作）**
+- [x] **Step 1: 写入 20 张卡（01-04 用锚点，05-20 按主题池创作）**
 
-- [ ] **Step 2: 跑本类别测试**
+- [x] **Step 2: 跑本类别测试**
 
 Run: `npx vitest run src/__tests__/presetCards.test.ts -t "通用"`
 Expected: PASS —— `【通用】数量为 20` 绿。
 
-- [ ] **Step 3: 提交**
+- [x] **Step 3: 提交**
 
 ```powershell
 git add -A
@@ -1495,16 +1495,16 @@ git commit -m "feat(cards): 通用 20 张（对齐/澄清/自检/合规）"
 
 ## Task 11: 卡库全量校验（转绿）
 
-- [ ] **Step 1: 跑全量卡库测试**
+- [x] **Step 1: 跑全量卡库测试**
 
 Run: `npx vitest run src/__tests__/presetCards.test.ts`
 Expected: PASS —— 13 个用例全绿（5 个分类数量 + 总数 + id/标题/文本唯一 + 字段完整 + 变量登记 + mode 分布 + 变量卡数量），共 125 张。
 
-- [ ] **Step 2: 若不绿，按失败断言修正卡片数据（只改数据，不改测试）**
+- [x] **Step 2: 若不绿，按失败断言修正卡片数据（只改数据，不改测试）**
 
 常见修正：文本归一化重复（同一张卡的「；」前后调换顺序不算新卡）→ 改写成真正的不同指令；`{变量}` 未登记 → 补 `vars`；title 超 24 字 → 精简。
 
-- [ ] **Step 3: 全量测试 + 提交**
+- [x] **Step 3: 全量测试 + 提交**
 
 Run: `npm run test`
 Expected: 5 个测试文件全绿。
@@ -1523,7 +1523,7 @@ git commit -m "test: 预置卡库 125 张全量校验通过"
 - Create: `src/lib/clipboard.ts`
 - Create: `src/components/Toast.tsx`
 
-- [ ] **Step 1: 写 `src/lib/ids.ts`**
+- [x] **Step 1: 写 `src/lib/ids.ts`**
 
 ```ts
 /** 生成带前缀的唯一 id：优先 crypto.randomUUID，环境不支持时降级 */
@@ -1536,7 +1536,7 @@ export function newId(prefix: string): string {
 }
 ```
 
-- [ ] **Step 2: 写 `src/lib/clipboard.ts`（file:// 与旧环境回退）**
+- [x] **Step 2: 写 `src/lib/clipboard.ts`（file:// 与旧环境回退）**
 
 ```ts
 /**
@@ -1570,7 +1570,7 @@ export async function copyToClipboard(text: string): Promise<boolean> {
 }
 ```
 
-- [ ] **Step 3: 写 `src/components/Toast.tsx`**
+- [x] **Step 3: 写 `src/components/Toast.tsx`**
 
 ```tsx
 interface Props {
@@ -1588,12 +1588,12 @@ export function Toast({ message }: Props) {
 }
 ```
 
-- [ ] **Step 4: 类型检查**
+- [x] **Step 4: 类型检查**
 
 Run: `npx tsc --noEmit`
 Expected: 无输出、退出码 0。（本任务产出的组件在 Task 16 被 App 引用。）
 
-- [ ] **Step 5: 提交**
+- [x] **Step 5: 提交**
 
 ```powershell
 git add -A
@@ -1608,7 +1608,7 @@ git commit -m "feat: id 生成、剪贴板复制（含 file:// 回退）、Toast
 - Create: `src/components/CardItem.tsx`
 - Create: `src/components/CardLibrary.tsx`
 
-- [ ] **Step 1: 写 `src/components/CardItem.tsx`**
+- [x] **Step 1: 写 `src/components/CardItem.tsx`**
 
 ```tsx
 import { MODE_LABELS, type Card } from '../types'
@@ -1638,7 +1638,7 @@ export function CardItem({ card, onInsert }: Props) {
 }
 ```
 
-- [ ] **Step 2: 写 `src/components/CardLibrary.tsx`**
+- [x] **Step 2: 写 `src/components/CardLibrary.tsx`**
 
 ```tsx
 import { useMemo, useState } from 'react'
@@ -1712,12 +1712,12 @@ export function CardLibrary({ cards, onInsert }: Props) {
 }
 ```
 
-- [ ] **Step 3: 类型检查 + 暂不接入 App**
+- [x] **Step 3: 类型检查 + 暂不接入 App**
 
 Run: `npx tsc --noEmit`
 Expected: 无输出、退出码 0。（本任务两个组件尚未被 App 引用，Task 16 统一接线。）
 
-- [ ] **Step 4: 提交**
+- [x] **Step 4: 提交**
 
 ```powershell
 git add -A
@@ -1733,7 +1733,7 @@ git commit -m "feat: 卡库面板（搜索/分类折叠/悬停预览/点击插�
 - Create: `src/components/SlotSection.tsx`
 - Create: `src/components/Composer.tsx`
 
-- [ ] **Step 1: 写 `src/components/SlotItemRow.tsx`**
+- [x] **Step 1: 写 `src/components/SlotItemRow.tsx`**
 
 ```tsx
 import type { Dispatch } from 'react'
@@ -1819,7 +1819,7 @@ export function SlotItemRow({ item, card, slot, index, count, dispatch, highligh
 }
 ```
 
-- [ ] **Step 2: 写 `src/components/SlotSection.tsx`**
+- [x] **Step 2: 写 `src/components/SlotSection.tsx`**
 
 ```tsx
 import type { Dispatch } from 'react'
@@ -1867,7 +1867,7 @@ export function SlotSection({ mode, title, items, cardsById, dispatch, highlight
 }
 ```
 
-- [ ] **Step 3: 写 `src/components/Composer.tsx`**
+- [x] **Step 3: 写 `src/components/Composer.tsx`**
 
 ```tsx
 import type { Dispatch } from 'react'
@@ -1915,12 +1915,12 @@ export function Composer({ compose, cardsById, dispatch, highlightInstanceId }: 
 }
 ```
 
-- [ ] **Step 4: 类型检查**
+- [x] **Step 4: 类型检查**
 
 Run: `npx tsc --noEmit`
 Expected: 无输出、退出码 0。
 
-- [ ] **Step 5: 提交**
+- [x] **Step 5: 提交**
 
 ```powershell
 git add -A
@@ -1934,7 +1934,7 @@ git commit -m "feat: 拼装区（基础句 + 三槽位 + 启停/排序/变量内
 **Files:**
 - Create: `src/components/PreviewPane.tsx`
 
-- [ ] **Step 1: 写 `src/components/PreviewPane.tsx`**
+- [x] **Step 1: 写 `src/components/PreviewPane.tsx`**
 
 ```tsx
 import type { ReactNode } from 'react'
@@ -2000,12 +2000,12 @@ export function PreviewPane({ text, manual, unresolved, onManualChange, onCopy }
 }
 ```
 
-- [ ] **Step 2: 类型检查**
+- [x] **Step 2: 类型检查**
 
 Run: `npx tsc --noEmit`
 Expected: 无输出、退出码 0。
 
-- [ ] **Step 3: 提交**
+- [x] **Step 3: 提交**
 
 ```powershell
 git add -A
@@ -2021,7 +2021,7 @@ git commit -m "feat: 预览面板（未填变量高亮/手动微调/复制按钮
 - Modify: `src/main.tsx`（已就位，若与下方一致则跳过）
 - Modify: `src/styles.css`（替换占位样式）
 
-- [ ] **Step 1: 写 `src/App.tsx`（完整版，替换占位）**
+- [x] **Step 1: 写 `src/App.tsx`（完整版，替换占位）**
 
 ```tsx
 import { useEffect, useMemo, useReducer, useState } from 'react'
@@ -2114,7 +2114,7 @@ export default function App() {
 }
 ```
 
-- [ ] **Step 2: 用完整样式替换 `src/styles.css`**
+- [x] **Step 2: 用完整样式替换 `src/styles.css`**
 
 ```css
 :root {
@@ -2575,7 +2575,7 @@ button.primary:disabled {
 }
 ```
 
-- [ ] **Step 3: 类型检查 + 全量测试**
+- [x] **Step 3: 类型检查 + 全量测试**
 
 Run: `npx tsc --noEmit`
 Expected: 无输出、退出码 0。
@@ -2583,7 +2583,7 @@ Expected: 无输出、退出码 0。
 Run: `npm run test`
 Expected: 5 个测试文件全绿。
 
-- [ ] **Step 4: dev server 人工验收（浏览器）**
+- [x] **Step 4: dev server 人工验收（浏览器）**
 
 Run（后台，若未在运行）: `npm run dev`
 用浏览器打开 `http://localhost:5173`，逐条检查：
@@ -2598,7 +2598,7 @@ Run（后台，若未在运行）: `npm run dev`
 8. 点「手动微调」→ 变成可编辑；改一段字 → 再插入一张卡，预览不被覆盖；点「⟳ 与拼装同步」→ 回到自动模式
 9. 刷新页面 → 基础句与所有实例（含变量值、顺序、启停状态）完整保留
 
-- [ ] **Step 5: 提交**
+- [x] **Step 5: 提交**
 
 ```powershell
 git add -A
@@ -2612,7 +2612,7 @@ git commit -m "feat: 三栏主界面接线与完整样式（插入高亮/复制 
 **Files:**
 - Create: `README.md`
 
-- [ ] **Step 1: 写 `README.md`**
+- [x] **Step 1: 写 `README.md`**
 
 ```markdown
 # 提示词方块（Prompt Blocks）
@@ -2658,7 +2658,7 @@ git commit -m "feat: 三栏主界面接线与完整样式（插入高亮/复制 
 - 前端零后端：所有数据只存在你的浏览器里
 ```
 
-- [ ] **Step 2: 构建单文件产物并验证**
+- [x] **Step 2: 构建单文件产物并验证**
 
 Run: `npm run build`
 Expected: 退出码 0；`dist/` 下生成 `index.html`（单文件，含内联 JS/CSS）。
@@ -2667,7 +2667,7 @@ Expected: 退出码 0；`dist/` 下生成 `index.html`（单文件，含内联 J
 - 页面正常渲染 125 张卡；点卡、拼装、复制均正常（复制走回退路径也应成功）
 - Console 无 error
 
-- [ ] **Step 3: 最终验收脚本（对照验收标准 1/2/5）**
+- [x] **Step 3: 最终验收脚本（对照验收标准 1/2/5）**
 
 1. **打开即用，控制台无报错**：dev server 与单文件产物两个入口都验证
 2. **连点 3 张卡 → 通顺完整提示词 → 复制成功**：用锚点卡组合演示——
@@ -2676,7 +2676,7 @@ Expected: 退出码 0；`dist/` 下生成 `index.html`（单文件，含内联 J
 3. **刷新数据还在**：拼装区状态（Step 2 验收项在 Step 2 完成）
 4. **首次上手无需说明书**：请一位没看过本 README 的人直接操作，观察是否能在 1 分钟内完成「输入基础句 → 点 3 张卡 → 复制」
 
-- [ ] **Step 4: 收尾提交**
+- [x] **Step 4: 收尾提交**
 
 ```powershell
 git add -A
