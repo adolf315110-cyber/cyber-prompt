@@ -155,6 +155,7 @@ interface ComposeState {
   - 手法型：指明方向 + 可操作步骤。例：「从入口点开始逐函数追踪污点传播，标出每个 sink 缺失的过滤环节」，拒绝「以 OWASP 视角」这类空泛术语卡
   - 带专业术语与具体方法论；必要时锚定标准（OWASP Top 10 2021、CWE、CVSS 3.1、PTES、ATT&CK 等）
   - 三种 mode 措辞约定：**前缀** = 视角/风格/约束修饰；**后缀** = 对输出的追加要求（以「并……」为主）；**段落** = 结构性块（以「输出要求：」「约束：」开头）
+  - 卡片文本**单行书写**（多要点用「；」分隔）；换行只用于段落分隔，由拼装规则生成
   - 变量卡示例：「目标语言：{语言}」「技术栈：{框架} {版本}」「速率限制：{每秒请求数}」
   - 每卡带 `tags`，搜索同时匹配 标题 / 文本 / 标签
 - **唯一性保障**：`src/__tests__/presetCards.test.ts` 自动校验 id / 标题 / 文本 三层不重复 + 字段完整性；不通过则测试红
@@ -189,7 +190,9 @@ D:\dream
 └─ src/
    ├─ main.tsx / App.tsx / styles.css
    ├─ types.ts                       # Card / Recipe / ComposeState 等
-   ├─ data/presetCards.ts            # 预置卡库（≥120 张）
+   ├─ data/presetCards.ts            # 汇总导出 PRESET_CARDS
+   ├─ data/preset/                   # 预置卡库分 5 个分类文件（每类一个，便于手改）
+   │   └─ secAudit.ts / pentest.ts / coding.ts / output.ts / general.ts
    ├─ lib/compose.ts                 # 槽位拼接纯函数
    ├─ lib/reducer.ts                 # 应用状态 reducer（纯）
    ├─ lib/storage.ts                 # localStorage / 导入导出 / schema 版本
