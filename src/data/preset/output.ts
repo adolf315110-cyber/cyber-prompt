@@ -69,7 +69,7 @@ export const OUTPUT_CARDS: Card[] = [
     id: 'builtin:output-07',
     category: 'output',
     title: 'CVSS 评分输出',
-    text: 'CVSS 评分输出：给出向量字符串（如 AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:H）与分值，并说明每个度量的取值理由',
+    text: 'CVSS 3.1 评分输出：向量字符串（如 AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:H）与分值，说明每个度量取值理由；必要时附 CVSS 4.0 或 EPSS 参考',
     mode: 'block',
     vars: [],
     tags: ['CVSS', '评分'],

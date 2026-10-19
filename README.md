@@ -31,7 +31,7 @@
 2. 规则速记：id 用 `builtin:<分类>-<两位序号>`；`title` ≤ 24 字；`text` ≤ 160 字单行（多要点用「；」）；正文里的 `{变量}` 必须登记进 `vars`（变量名以中文或字母开头，`{{7*7}}` 一类载荷不会被误判）；`tags` 2-4 个
 3. 运行 `npm run test`，唯一性 / 字段 / 变量登记会自动校验
 
-提示：卡片要写「手法型」指令——动作 + 对象 + 判定标准（怎么算命中、怎么排除假阴性），真实载荷/字段/工具名优先，能量化就量化。写法标准与调研依据见 `docs/research/2026-10-19-security-prompt-research.md`。
+提示：卡片要写「手法型」指令——动作 + 对象 + 判定标准（怎么算命中、怎么排除假阴性），真实载荷/字段/工具名优先，能量化就量化，标准术语保留英文原名（BOLA、TOCTOU、gadget chain 等）。写法标准与调研依据见 `docs/research/2026-10-19-security-prompt-research.md`，术语来源见 `docs/research/2026-10-19-terminology-sources.md`。
 
 ## 目录结构
 
@@ -39,7 +39,7 @@
 - `src/data/preset/`：预置卡库（150 张，5 类：安全审计 / 渗透测试 / 编程 / 输出格式 / 通用）
 - `src/components/`：三栏 UI（卡库 / 拼装区 / 预览）
 - `docs/superpowers/`：设计文档与实现计划
-- `docs/research/`：卡片写法调研笔记（GitHub 网安 prompt 借鉴）
+- `docs/research/`：卡片写法与术语来源调研笔记（GitHub 网安 prompt / 概念库借鉴）
 
 ## 注意事项
 
