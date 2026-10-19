@@ -4,10 +4,10 @@ import { extractVarNames } from '../lib/cardUtils'
 import { CATEGORIES, type Category } from '../types'
 
 const EXPECTED_COUNTS: Record<Category, number> = {
-  'sec-audit': 30,
-  pentest: 30,
+  'sec-audit': 40,
+  pentest: 40,
   coding: 25,
-  output: 20,
+  output: 25,
   general: 20,
 }
 
@@ -20,8 +20,8 @@ describe('预置卡库', () => {
     })
   }
 
-  it('总数 125 张', () => {
-    expect(PRESET_CARDS.length).toBe(125)
+  it('总数 150 张', () => {
+    expect(PRESET_CARDS.length).toBe(150)
   })
 
   it('id 唯一且格式规范', () => {

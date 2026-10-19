@@ -1,4 +1,5 @@
 import type { ReactNode } from 'react'
+import { VAR_EXACT_PATTERN, VAR_SPLIT_PATTERN } from '../lib/cardUtils'
 
 interface Props {
   text: string
@@ -10,8 +11,8 @@ interface Props {
 
 /** 未填变量高亮：把 {xxx} 渲染成 <mark> */
 function renderWithHighlights(text: string): ReactNode[] {
-  return text.split(/(\{[^{}]+\})/g).map((part, i) =>
-    /^\{[^{}]+\}$/.test(part) ? <mark key={i}>{part}</mark> : <span key={i}>{part}</span>,
+  return text.split(VAR_SPLIT_PATTERN).map((part, i) =>
+    VAR_EXACT_PATTERN.test(part) ? <mark key={i}>{part}</mark> : <span key={i}>{part}</span>,
   )
 }
 

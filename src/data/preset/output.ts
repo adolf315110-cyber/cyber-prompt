@@ -1,8 +1,8 @@
 import type { Card } from '../../types'
 
 /**
- * 输出格式 · 20 张（唯一性由 src/__tests__/presetCards.test.ts 校验）
- * 新增卡片规范见 secAudit.ts 文件头（同构）。
+ * 输出格式 · 25 张（唯一性由 src/__tests__/presetCards.test.ts 校验）
+ * 新增卡片规范见 secAudit.ts 文件头（v2 手法卡标准，同构）。
  */
 export const OUTPUT_CARDS: Card[] = [
   {
@@ -203,6 +203,56 @@ export const OUTPUT_CARDS: Card[] = [
     mode: 'block',
     vars: [{ name: '受众', default: '开发工程师' }],
     tags: ['受众', '细节层级'],
+    builtin: true,
+  },
+  {
+    id: 'builtin:output-21',
+    category: 'output',
+    title: '报告首屏契约',
+    text: '报告首屏契约：标题用「[漏洞类型] in [端点] 允许 [角色] 造成 [影响]」；首句必须是攻击者能做什么（影响优先）而非漏洞介绍；步骤区给可粘贴的原始请求，Critical/High 另附第二种工具的等价复现命令',
+    mode: 'block',
+    vars: [],
+    tags: ['报告', '影响优先'],
+    builtin: true,
+  },
+  {
+    id: 'builtin:output-22',
+    category: 'output',
+    title: '置信度分级输出',
+    text: '置信度分级输出：每条发现标 [已验证]/[高置信]/[待验证] 并写明验证条件——数据流每一跳验证过、确认无有效过滤、有可构造输入，缺哪一步就注明',
+    mode: 'block',
+    vars: [],
+    tags: ['置信度', '输出'],
+    builtin: true,
+  },
+  {
+    id: 'builtin:output-23',
+    category: 'output',
+    title: '去重与编号',
+    text: '去重与编号：同文件同行号、同类型行号差 <10、描述相似度 >80% 的合并为一条；编号用 [C-01]/[H-02]/[M-03] 前缀，全文引用统一编号',
+    mode: 'block',
+    vars: [],
+    tags: ['去重', '编号'],
+    builtin: true,
+  },
+  {
+    id: 'builtin:output-24',
+    category: 'output',
+    title: '负结论也要报告',
+    text: '负结论也写进报告：逐项列出已测但未发现问题的范围与手法，作为覆盖证明，也标注仍未覆盖的区域',
+    mode: 'block',
+    vars: [],
+    tags: ['覆盖', '负结论'],
+    builtin: true,
+  },
+  {
+    id: 'builtin:output-25',
+    category: 'output',
+    title: '执行摘要格式',
+    text: '执行摘要格式：风险全景表（严重级 × 数量 × 资产）+ 最优先修复三条 + 组合攻击链示意——只看这一页也能决策',
+    mode: 'block',
+    vars: [],
+    tags: ['摘要', '管理层'],
     builtin: true,
   },
 ]

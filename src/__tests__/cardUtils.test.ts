@@ -23,6 +23,10 @@ describe('extractVarNames', () => {
   it('没有变量时返回空数组', () => {
     expect(extractVarNames('普通文本，没有占位符')).toEqual([])
   })
+  it('模板与载荷语法（{{7*7}}、${7*7}）不会被当作变量', () => {
+    expect(extractVarNames('发 {{7*7}} 与 ${7*7} 探测')).toEqual([])
+    expect(hasUnresolvedVars('发 {{7*7}} 与 ${7*7} 探测')).toBe(false)
+  })
 })
 
 describe('defaultVarsFor', () => {
