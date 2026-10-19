@@ -1,4 +1,5 @@
 import type { Dispatch } from 'react'
+import type { UiStrings } from '../lib/i18n'
 import type { AppAction } from '../lib/reducer'
 import type { Card, ComposeState } from '../types'
 import { SlotSection } from './SlotSection'
@@ -8,10 +9,11 @@ interface Props {
   cardsById: Map<string, Card>
   dispatch: Dispatch<AppAction>
   highlightInstanceId: string | null
+  ui: UiStrings
 }
 
 /** 中栏：基础句 + 三个槽位 */
-export function Composer({ compose, cardsById, dispatch, highlightInstanceId }: Props) {
+export function Composer({ compose, cardsById, dispatch, highlightInstanceId, ui }: Props) {
   const isEmpty =
     compose.baseSentence.trim() === '' &&
     compose.slots.prefix.length === 0 &&
@@ -21,43 +23,46 @@ export function Composer({ compose, cardsById, dispatch, highlightInstanceId }: 
   return (
     <section className="pane composer">
       <div className="pane-head">
-        <h2>拼装区</h2>
-        {isEmpty && <span className="muted">点左边任意卡片开始拼装</span>}
+        <h2>{ui.composerTitle}</h2>
+        {isEmpty && <span className="muted">{ui.composerEmpty}</span>}
       </div>
       <label className="base-label" htmlFor="base-sentence">
-        基础句
+        {ui.baseSentence}
       </label>
       <textarea
         id="base-sentence"
         className="base-input"
         rows={3}
-        placeholder="例：帮我审计这段代码"
+        placeholder={ui.baseSentencePlaceholder}
         value={compose.baseSentence}
         onChange={(e) => dispatch({ type: 'setBaseSentence', text: e.target.value })}
       />
       <SlotSection
         mode="prefix"
-        title="前缀区"
+        title={ui.slotTitles.prefix}
         items={compose.slots.prefix}
         cardsById={cardsById}
         dispatch={dispatch}
         highlightInstanceId={highlightInstanceId}
+        ui={ui}
       />
       <SlotSection
         mode="suffix"
-        title="后缀区"
+        title={ui.slotTitles.suffix}
         items={compose.slots.suffix}
         cardsById={cardsById}
         dispatch={dispatch}
         highlightInstanceId={highlightInstanceId}
+        ui={ui}
       />
       <SlotSection
         mode="block"
-        title="段落区"
+        title={ui.slotTitles.block}
         items={compose.slots.block}
         cardsById={cardsById}
         dispatch={dispatch}
         highlightInstanceId={highlightInstanceId}
+        ui={ui}
       />
     </section>
   )

@@ -64,9 +64,3 @@ export const CATEGORIES: { id: Category; label: string }[] = [
   { id: 'output', label: '输出格式' },
   { id: 'general', label: '通用' },
 ]
-
-export const MODE_LABELS: Record<Mode, string> = {
-  prefix: '前缀',
-  suffix: '后缀',
-  block: '段落',
-}

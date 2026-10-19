@@ -1,14 +1,16 @@
 import { useMemo, useState } from 'react'
+import type { UiStrings } from '../lib/i18n'
 import { CATEGORIES, type Card } from '../types'
 import { CardItem } from './CardItem'
 
 interface Props {
   cards: Card[]
   onInsert: (card: Card) => void
+  ui: UiStrings
 }
 
 /** 左栏：搜索 + 分类分组 + 点击插入 */
-export function CardLibrary({ cards, onInsert }: Props) {
+export function CardLibrary({ cards, onInsert, ui }: Props) {
   const [query, setQuery] = useState('')
   const [collapsed, setCollapsed] = useState<Record<string, boolean>>({})
 
@@ -28,13 +30,13 @@ export function CardLibrary({ cards, onInsert }: Props) {
   return (
     <aside className="pane card-library">
       <div className="pane-head">
-        <h2>卡库</h2>
-        <span className="muted">{searching ? `${filtered.length} / ${cards.length} 张` : `${cards.length} 张`}</span>
+        <h2>{ui.library}</h2>
+        <span className="muted">{searching ? ui.filteredCount(filtered.length, cards.length) : ui.cardCount(cards.length)}</span>
       </div>
       <input
         className="search"
         type="search"
-        placeholder="搜索卡片（标题 / 内容 / 标签）"
+        placeholder={ui.searchPlaceholder}
         value={query}
         onChange={(e) => setQuery(e.target.value)}
       />
@@ -49,15 +51,15 @@ export function CardLibrary({ cards, onInsert }: Props) {
                 onClick={() => setCollapsed((prev) => ({ ...prev, [g.id]: !prev[g.id] }))}
               >
                 <span className="chev">{isCollapsed ? '▸' : '▾'}</span>
-                {g.label}
+                {ui.categoryLabels[g.id]}
                 <span className="muted">{g.items.length}</span>
               </button>
               {!isCollapsed && (
                 <div className="card-grid">
                   {g.items.map((card) => (
-                    <CardItem key={card.id} card={card} onInsert={onInsert} />
+                    <CardItem key={card.id} card={card} onInsert={onInsert} ui={ui} />
                   ))}
-                  {g.items.length === 0 && searching && <p className="muted empty">没有匹配的卡片</p>}
+                  {g.items.length === 0 && searching && <p className="muted empty">{ui.noMatches}</p>}
                 </div>
               )}
             </section>

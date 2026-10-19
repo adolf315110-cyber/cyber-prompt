@@ -1,5 +1,6 @@
 import type { ReactNode } from 'react'
 import { VAR_EXACT_PATTERN, VAR_SPLIT_PATTERN } from '../lib/cardUtils'
+import type { UiStrings } from '../lib/i18n'
 
 interface Props {
   text: string
@@ -7,6 +8,7 @@ interface Props {
   unresolved: boolean
   onManualChange: (text: string | null) => void
   onCopy: () => void
+  ui: UiStrings
 }
 
 /** 未填变量高亮：把 {xxx} 渲染成 <mark> */
@@ -21,27 +23,27 @@ function renderWithHighlights(text: string): ReactNode[] {
  * - 自动模式：派生文本渲染（只读），未填变量高亮
  * - 手动模式：可编辑 textarea；「⟳ 与拼装同步」退出并回到自动模式
  */
-export function PreviewPane({ text, manual, unresolved, onManualChange, onCopy }: Props) {
+export function PreviewPane({ text, manual, unresolved, onManualChange, onCopy, ui }: Props) {
   const isEmpty = text.trim() === ''
 
   return (
     <section className="pane preview">
       <div className="pane-head">
-        <h2>预览</h2>
-        {unresolved && !manual && <span className="warn">有未填变量</span>}
-        {manual && <span className="muted">手动微调中，不再自动同步</span>}
+        <h2>{ui.previewTitle}</h2>
+        {unresolved && !manual && <span className="warn">{ui.unfilledVars}</span>}
+        {manual && <span className="muted">{ui.manualSyncOff}</span>}
       </div>
       {manual ? (
         <textarea
           className="preview-edit"
           value={text}
           onChange={(e) => onManualChange(e.target.value)}
-          placeholder="在这里微调最终文本"
+          placeholder={ui.manualPlaceholder}
         />
       ) : (
         <pre className="preview-text">
           {isEmpty ? (
-            <span className="muted">拼装结果会显示在这里：输入基础句，或点左侧卡片</span>
+            <span className="muted">{ui.previewEmpty}</span>
           ) : (
             renderWithHighlights(text)
           )}
@@ -49,15 +51,15 @@ export function PreviewPane({ text, manual, unresolved, onManualChange, onCopy }
       )}
       <div className="preview-actions">
         <button type="button" className="primary" onClick={onCopy} disabled={isEmpty}>
-          复制
+          {ui.copy}
         </button>
         {manual ? (
           <button type="button" onClick={() => onManualChange(null)}>
-            ⟳ 与拼装同步
+            {ui.sync}
           </button>
         ) : (
           <button type="button" onClick={() => onManualChange(text)} disabled={isEmpty}>
-            手动微调
+            {ui.manualEdit}
           </button>
         )}
       </div>

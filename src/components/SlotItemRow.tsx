@@ -1,6 +1,7 @@
 import type { Dispatch } from 'react'
 import { hasUnresolvedVars } from '../lib/cardUtils'
 import { renderCardText } from '../lib/compose'
+import type { UiStrings } from '../lib/i18n'
 import type { AppAction } from '../lib/reducer'
 import type { Card, Mode, SlotItem } from '../types'
 
@@ -12,10 +13,11 @@ interface Props {
   count: number
   dispatch: Dispatch<AppAction>
   highlight: boolean
+  ui: UiStrings
 }
 
 /** 拼装区里的一张已插入卡：启停/上移/下移/移除 + 变量内联输入 */
-export function SlotItemRow({ item, card, slot, index, count, dispatch, highlight }: Props) {
+export function SlotItemRow({ item, card, slot, index, count, dispatch, highlight, ui }: Props) {
   const rendered = card ? renderCardText(card, item.vars) : ''
   const hasVars = Boolean(card && card.vars.length > 0)
 
@@ -23,19 +25,19 @@ export function SlotItemRow({ item, card, slot, index, count, dispatch, highligh
     <div className={`slot-item${item.enabled ? '' : ' disabled'}${highlight ? ' flash' : ''}`}>
       <div className="slot-main">
         <span className="slot-title" title={rendered}>
-          {card ? card.title : '（卡片已删除）'}
+          {card ? card.title : ui.cardDeleted}
         </span>
         <div className="slot-actions">
           <button
             type="button"
-            title={item.enabled ? '停用' : '启用'}
+            title={item.enabled ? ui.disable : ui.enable}
             onClick={() => dispatch({ type: 'toggleItem', slot, instanceId: item.instanceId })}
           >
             {item.enabled ? '⏸' : '▶'}
           </button>
           <button
             type="button"
-            title="上移"
+            title={ui.moveUp}
             disabled={index === 0}
             onClick={() => dispatch({ type: 'moveItem', slot, instanceId: item.instanceId, direction: -1 })}
           >
@@ -43,7 +45,7 @@ export function SlotItemRow({ item, card, slot, index, count, dispatch, highligh
           </button>
           <button
             type="button"
-            title="下移"
+            title={ui.moveDown}
             disabled={index === count - 1}
             onClick={() => dispatch({ type: 'moveItem', slot, instanceId: item.instanceId, direction: 1 })}
           >
@@ -51,7 +53,7 @@ export function SlotItemRow({ item, card, slot, index, count, dispatch, highligh
           </button>
           <button
             type="button"
-            title="移除"
+            title={ui.remove}
             onClick={() => dispatch({ type: 'removeItem', slot, instanceId: item.instanceId })}
           >
             ×
@@ -75,7 +77,7 @@ export function SlotItemRow({ item, card, slot, index, count, dispatch, highligh
           ))}
         </div>
       )}
-      {hasVars && hasUnresolvedVars(rendered) && <p className="slot-warn">有未填写的变量，预览中会原样显示占位符</p>}
+      {hasVars && hasUnresolvedVars(rendered) && <p className="slot-warn">{ui.unresolvedHint}</p>}
     </div>
   )
 }
