@@ -4,6 +4,11 @@ export type Mode = 'prefix' | 'suffix' | 'block'
 export interface CardVar {
   name: string
   default?: string
+  /**
+   * 实例值存取键。en 模式下 name 会换成英文 token（如 language），
+   * key 保留原变量名（如 语言），保证切换语言时已填的值不丢失；缺省时等于 name。
+   */
+  key?: string
 }
 
 export interface Card {
@@ -16,6 +21,15 @@ export interface Card {
   tags: string[]
   note?: string
   builtin: boolean
+}
+
+/** 英译层条目（keys = 卡片 id，见 src/data/preset/en/） */
+export interface CardI18n {
+  title: string
+  text: string
+  tags: string[]
+  /** 键 = 原(中)文变量名 → 英文变量名与默认值 */
+  vars?: Record<string, { name: string; default: string }>
 }
 
 export interface RecipeItem {

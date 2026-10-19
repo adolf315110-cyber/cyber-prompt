@@ -21,10 +21,10 @@ export function extractVarNames(text: string): string[] {
   return names
 }
 
-/** 生成实例的初始变量表：默认值优先，无默认值为空串 */
+/** 生成实例的初始变量表：默认值优先，无默认值为空串（键用 v.key 以兼容英译层） */
 export function defaultVarsFor(card: Card): Record<string, string> {
   const vars: Record<string, string> = {}
-  for (const v of card.vars) vars[v.name] = v.default ?? ''
+  for (const v of card.vars) vars[v.key ?? v.name] = v.default ?? ''
   return vars
 }
 

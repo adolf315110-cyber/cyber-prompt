@@ -1,6 +1,6 @@
 import type { Category, Mode } from '../types'
 
-/** 界面语言：卡片内容与拼装结果始终为中文，仅 UI 文案随此切换 */
+/** 界面语言：UI 文案与卡片内容随此切换；en 的卡片内容走内置英译层（src/data/preset/en） */
 export type Lang = 'zh' | 'en'
 
 export const LANG_STORAGE_KEY = 'prompt-blocks:lang'

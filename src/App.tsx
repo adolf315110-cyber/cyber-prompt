@@ -9,6 +9,7 @@ import { copyToClipboard } from './lib/clipboard'
 import { composePrompt } from './lib/compose'
 import { HTML_LANG, PAGE_TITLE, UI, loadLang, saveLang, type Lang } from './lib/i18n'
 import { newId } from './lib/ids'
+import { localizeCard } from './lib/localize'
 import { appReducer } from './lib/reducer'
 import { loadData, saveData } from './lib/storage'
 import type { Card } from './types'
@@ -47,14 +48,16 @@ export default function App() {
   }, [highlight])
 
   const allCards = useMemo(() => [...PRESET_CARDS, ...data.userCards], [data.userCards])
+  // 语言层：en 时用内置英译层覆写卡片内容（vars 的 key 指回原变量名，已填值不丢失）
+  const localizedCards = useMemo(() => allCards.map((c) => localizeCard(c, lang)), [allCards, lang])
 
   const cardsById = useMemo(() => {
     const map = new Map<string, Card>()
-    for (const c of allCards) map.set(c.id, c)
+    for (const c of localizedCards) map.set(c.id, c)
     return map
-  }, [allCards])
+  }, [localizedCards])
 
-  const composed = useMemo(() => composePrompt(data.compose, cardsById), [data.compose, cardsById])
+  const composed = useMemo(() => composePrompt(data.compose, cardsById, lang), [data.compose, cardsById, lang])
   const previewText = data.compose.manualText ?? composed
   const unresolved = data.compose.manualText === null && hasUnresolvedVars(previewText)
 
@@ -95,7 +98,7 @@ export default function App() {
         </div>
       </header>
       <main className="app-body">
-        <CardLibrary cards={allCards} onInsert={handleInsert} ui={ui} />
+        <CardLibrary cards={localizedCards} onInsert={handleInsert} ui={ui} />
         <Composer
           compose={data.compose}
           cardsById={cardsById}

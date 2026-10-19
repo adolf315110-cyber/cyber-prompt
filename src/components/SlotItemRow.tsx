@@ -62,19 +62,22 @@ export function SlotItemRow({ item, card, slot, index, count, dispatch, highligh
       </div>
       {hasVars && card && (
         <div className="slot-vars">
-          {card.vars.map((v) => (
-            <label key={v.name} className="var-field">
-              <span>{v.name}</span>
-              <input
-                type="text"
-                value={item.vars[v.name] ?? ''}
-                placeholder={v.default ?? v.name}
-                onChange={(e) =>
-                  dispatch({ type: 'setVar', slot, instanceId: item.instanceId, name: v.name, value: e.target.value })
-                }
-              />
-            </label>
-          ))}
+          {card.vars.map((v) => {
+            const storeKey = v.key ?? v.name
+            return (
+              <label key={storeKey} className="var-field">
+                <span>{v.name}</span>
+                <input
+                  type="text"
+                  value={item.vars[storeKey] ?? ''}
+                  placeholder={v.default ?? v.name}
+                  onChange={(e) =>
+                    dispatch({ type: 'setVar', slot, instanceId: item.instanceId, name: storeKey, value: e.target.value })
+                  }
+                />
+              </label>
+            )
+          })}
         </div>
       )}
       {hasVars && hasUnresolvedVars(rendered) && <p className="slot-warn">{ui.unresolvedHint}</p>}
