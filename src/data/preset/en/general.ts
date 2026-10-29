@@ -104,8 +104,9 @@ export const GENERAL_EN: Record<string, CardI18n> = {
   },
   'builtin:general-20': {
     title: 'Output language and style',
-    text: 'Output language is {language}; restrained and professional style; keep necessary English terms with a Chinese explanation',
+    // 英文页的默认输出语言是 English（中文页那张卡的默认值仍是「中文」）
+    text: 'Output language is {language}; restrained and professional style; keep necessary English terms with a short explanation',
     tags: ['language', 'style'],
-    vars: { 语言: { name: 'language', default: 'Chinese' } },
+    vars: { 语言: { name: 'language', default: 'English' } },
   },
 }

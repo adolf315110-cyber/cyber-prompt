@@ -7,9 +7,10 @@ import type { CardI18n } from '../../../types'
  */
 export const OUTPUT_EN: Record<string, CardI18n> = {
   'builtin:output-01': {
-    title: 'Chinese output',
-    text: 'Output requirement: Chinese; keep technical terms in their English original form with a Chinese explanation at first mention (e.g. sink, taint propagation, PoC)',
-    tags: ['Chinese', 'terminology'],
+    // 英文页不该再要求「用中文输出」——这张卡在英文界面指定英文输出
+    title: 'English output',
+    text: 'Output requirement: English; keep technical terms in their English original form with a short explanation at first mention (e.g. sink, taint propagation, PoC)',
+    tags: ['English', 'terminology'],
   },
   'builtin:output-02': {
     title: 'Table format',
