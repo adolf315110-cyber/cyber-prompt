@@ -16,14 +16,15 @@
 
 > 上一轮的 6 个来源（PayloadsAllTheThings / OWASP WSTG / HackTricks / InternalAllTheThings / Awesome-Redteam / CheatSheetSeries）继续有效，未重复抓取。
 
-## 二、本轮替换的卡（17 张）
+## 二、本轮替换的卡（18 张）
 
 替换判定标准沿用上一轮：**与现有卡语义重叠度最高、或最泛化（无动作）的卡优先被替换**。
 
-### 安全审计（12 张）
+### 安全审计（13 张）
 
 | 卡 | 原主题 | 新主题 | 新增术语 |
 |---|---|---|---|
+| 07 | 认证授权分开审 | 认证授权分开审（加锚） | CWE-345（客户端可读的会话状态可伪造） |
 | 12 | 检查错误处理路径 | 失败路径是否失守 | fail-open 控制点、`except: return True` 即 Critical、限流器后端不可达就放行、feature flag 默认宽松面 |
 | 14 | 供应链检查 | 供应链与流水线审计 | CWE-1357（action 未锁 commit SHA）、CWE-913（`pull_request_target` 执行 PR 代码 = poisoned pipeline execution）、CWE-94（Actions 表达式插值进 `run:`） |
 | 15 | 从配置与默认值开始 | 平台默认不安全 | 编排器 Secret 仅 base64、镜像无 `USER` 跑 root、缓存/KV 默认关闭认证、WAF/CDN 之后要直连源站 |
