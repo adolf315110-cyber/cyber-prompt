@@ -71,7 +71,7 @@
 - `src/data/preset/en/`：内置英译层（键为卡片 id；`localizeCard` 在 en 界面合并，变量用 `key` 指回原名保证已填值不丢）
 - `src/components/`：三栏 UI（卡库 / 拼装区 / 预览）+ 弹窗、卡片编辑器、配方条、我的卡片列表、顶层错误边界
 - `docs/superpowers/`：设计文档与实现计划
-- `docs/research/`：卡片写法与术语来源调研笔记（GitHub 网安 prompt / 概念库借鉴）
+- `docs/research/`：卡片写法与术语来源调研笔记（GitHub 网安 prompt / 概念库借鉴；术语来源分三轮，见 `2026-10-29-terminology-round3.md`）
 
 ## 注意事项
 

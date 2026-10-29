@@ -39,7 +39,7 @@ export const SEC_AUDIT_EN: Record<string, CardI18n> = {
   },
   'builtin:sec-audit-07': {
     title: 'Audit AuthN and AuthZ separately',
-    text: 'AuthN line: password hashing (bcrypt/Argon2), session fixation, expiry and lockout mechanisms; AuthZ line: per-endpoint role check plus object-ownership check (BOLA) — compare findById(id) against findById(userId,id)',
+    text: 'AuthN line: password hashing (bcrypt/Argon2), session fixation, expiry and lockout mechanisms, client-readable session state that is forgeable (CWE-345); AuthZ line: per-endpoint role check plus object-ownership check (BOLA) — compare findById(id) against findById(userId,id)',
     tags: ['AuthN', 'AuthZ', 'BOLA'],
   },
   'builtin:sec-audit-08': {
@@ -63,9 +63,9 @@ export const SEC_AUDIT_EN: Record<string, CardI18n> = {
     tags: ['SAST', 'dynamic verification'],
   },
   'builtin:sec-audit-12': {
-    title: 'Check failure paths',
-    text: 'and check whether failure paths fail open: swallowed exceptions, fail-open defaults, stack traces and config leaked in error pages (WSTG-ERRH-02), retries and fallbacks that bypass validation',
-    tags: ['error handling', 'fail-open', 'WSTG'],
+    title: 'Failure paths and fail-open controls',
+    text: 'and read the failure branch of every control: an auth check wrapped in try/catch that swallows and continues (except: return True is Critical), a rate limiter that lets traffic through when its store is unreachable, a feature flag defaulting to the permissive side — a control that fails open is off exactly during the outage an attacker triggers',
+    tags: ['fail-open', 'error handling', 'failure branch'],
   },
   'builtin:sec-audit-13': {
     title: 'Deserialization deep dive',
@@ -74,19 +74,19 @@ export const SEC_AUDIT_EN: Record<string, CardI18n> = {
     vars: { 语言: { name: 'language', default: 'Java' } },
   },
   'builtin:sec-audit-14': {
-    title: 'Supply chain audit',
-    text: 'Supply-chain audit (SBOM): parse lockfiles for direct and transitive dependency versions, flag known CVEs (with IDs and CVSS), EOL components and typosquatting/dependency-confusion suspects; give a minimal upgrade path',
-    tags: ['supply chain', 'SBOM', 'CVE'],
+    title: 'Supply chain and pipeline audit',
+    text: 'Supply-chain and pipeline audit: parse lockfiles for direct and transitive dependency versions, flag known CVEs (ID and CVSS), EOL components and typosquatting/dependency-confusion suspects; then check CI config — actions not pinned to a commit SHA (CWE-1357), pull_request_target executing PR code (CWE-913), GitHub Actions expressions interpolated into run: blocks (CWE-94)',
+    tags: ['supply chain', 'CI/CD', 'CWE-1357'],
   },
   'builtin:sec-audit-15': {
-    title: 'Start from config and defaults',
-    text: 'Start from deployment config and defaults: debug/Actuator endpoints, default credentials (admin/admin), wildcard CORS, directory listing, cloud storage ACL/Public Access — biggest blast radius, often unauthenticated',
-    tags: ['config security', 'Actuator', 'defaults'],
+    title: 'Unsafe platform defaults',
+    text: 'Start with whether the platform defaults are themselves unsafe: orchestrator secrets only base64-encoded with no encryption provider, container images with no USER instruction running as root, caches and KV stores with authentication off until a password is set; also test the origin directly behind any WAF/CDN, whose rules mask source vulnerabilities',
+    tags: ['config security', 'defaults', 'WAF'],
   },
   'builtin:sec-audit-16': {
-    title: 'Fix priorities',
-    text: 'and give three fix tiers by urgency: immediate hotfix (config/switch/WAF virtual patch), scheduled fix (code change), architectural change (design level) — each with its verification method',
-    tags: ['fix priority', 'virtual patch', 'regression'],
+    title: 'Agent and MCP server audit',
+    text: 'and audit the agent/MCP server side (OWASP Agentic Top 10): token passthrough makes it a confused deputy (CWE-441), a session id is not a credential (CWE-384), tool argument schemas must be enforced server-side and reject unknown properties, tool output is a channel back into the model (CWE-74), and permission decisions must be deterministic — never ask a model',
+    tags: ['MCP', 'Agent', 'ASI'],
   },
   'builtin:sec-audit-17': {
     title: 'Access control matrix',
@@ -109,14 +109,14 @@ export const SEC_AUDIT_EN: Record<string, CardI18n> = {
     tags: ['regression', 'test case'],
   },
   'builtin:sec-audit-21': {
-    title: 'Sensitive data inventory',
-    text: 'Sensitive data inventory (Secrets/PII): where keys, tokens and personal data appear — code, config, logs, caches, error pages, backups — and whether each is over-exposed, readable across users, or bulk-exportable',
-    tags: ['sensitive data', 'Secrets', 'PII'],
+    title: 'Sensitive data and leak handling',
+    text: 'Sensitive data inventory (Secrets/PII): where keys, tokens and personal data live — code, config, logs, caches, error pages, backups and egress (webhooks, email, analytics); once a secret is exposed, handle it by exposure window: rotation stops future use only, and access logs across the window still need review',
+    tags: ['sensitive data', 'Secrets', 'leak response'],
   },
   'builtin:sec-audit-22': {
     title: 'Framework misuse audit',
-    text: '{framework} misuse checklist: auto-binding (Mass Assignment), view rendering and SSTI surface, interceptor/filter coverage (route allowlist bypass), ORM raw SQL concatenation, whether annotation auth (@PreAuthorize and similar) actually takes effect',
-    tags: ['framework', 'Mass Assignment', 'SSTI'],
+    text: '{framework} misuse checklist: auto-binding writes fields the form never showed (Mass Assignment, CWE-915), user input compiled as the template source rather than passed as a value (SSTI, CWE-1336), user URLs in href/src without a scheme allowlist, ORM raw SQL concatenation, whether annotation auth (@PreAuthorize and similar) actually takes effect',
+    tags: ['framework', 'Mass Assignment', 'CWE-915'],
     vars: { 框架: { name: 'framework', default: 'Spring' } },
   },
   'builtin:sec-audit-23': {
@@ -156,14 +156,14 @@ export const SEC_AUDIT_EN: Record<string, CardI18n> = {
     tags: ['ASVS', 'WSTG', 'baseline'],
   },
   'builtin:sec-audit-30': {
-    title: 'Output the attack chain',
-    text: 'and draw the attack chain as entry→propagation→trigger→impact, noting required privileges, preconditions, verification status and blocking points at each hop',
-    tags: ['attack chain', 'impact'],
+    title: 'Open redirect and Host header',
+    text: 'and check open redirects (CWE-601): compare the parsed target against an allowlist instead of prefix matching — try //evil.example, trusted.example.evil.example and backslash variants; in OAuth flows this leaks the authorization code. Then check Host header injection poisoning absolute URLs and cache keys',
+    tags: ['open redirect', 'Host header', 'CWE-601'],
   },
   'builtin:sec-audit-31': {
-    title: 'Five-step chain derivation',
-    text: 'Chain derivation: for every finding ask — can its preconditions be met by another bug? can its output feed the next hop? iterate expansion (≤3 layers) until it converges, then judge whether combined severity beats the sum of single points',
-    tags: ['attack chain', 'composition', 'severity'],
+    title: 'XSS: reflected, stored, DOM',
+    text: 'XSS deep dive (CWE-79): reflected — parameter echoed back; stored — persisted and re-rendered; DOM — location.hash and innerHTML concatenation. Encode per output context: HTML escaping does not stop a javascript: URL in href/src, so allowlist the scheme',
+    tags: ['XSS', 'DOM XSS', 'CWE-79'],
   },
   'builtin:sec-audit-32': {
     title: 'Coverage self-check, 10 dimensions',
@@ -181,9 +181,9 @@ export const SEC_AUDIT_EN: Record<string, CardI18n> = {
     tags: ['anomaly', 'sourcemap', 'heuristics'],
   },
   'builtin:sec-audit-35': {
-    title: 'LLM feature audit',
-    text: 'LLM application audit (OWASP LLM Top 10): does user input reach the system prompt (Prompt Injection, incl. indirect)? are tool/MCP calls allowlisted and validated? does model output flow unescaped into HTML/SQL? do memory and RAG leak across tenants?',
-    tags: ['LLM', 'Prompt Injection', 'RAG'],
+    title: 'LLM application audit',
+    text: 'Walk OWASP LLM Top 10 (2025) item by item: LLM01 direct and indirect prompt injection (white-on-white PDF text, HTML comments, image steganography), LLM05 improper output handling into HTML/SQL, LLM06 excessive agency, LLM07 system prompt leakage, LLM08 vector and embedding weaknesses, LLM10 unbounded consumption — judge over multiple turns and attempts, not a single shot',
+    tags: ['LLM', 'Prompt Injection', 'LLM Top 10'],
   },
   'builtin:sec-audit-36': {
     title: 'Cache and shared state',
@@ -196,18 +196,18 @@ export const SEC_AUDIT_EN: Record<string, CardI18n> = {
     tags: ['logging', 'monitoring', 'masking'],
   },
   'builtin:sec-audit-38': {
-    title: 'Five-step taint analysis',
-    text: 'Five-step taint analysis: identify Sink (dangerous functions) → trace variable origins backwards → locate Source (user-controlled input) → check sanitizers and bypass routes → output the path graph with broken links marked',
-    tags: ['taint analysis', 'Sink', 'Source'],
+    title: 'Unicode and control-character smuggling',
+    text: 'Unicode and control-character smuggling: bidi overrides (U+202A-U+202E, U+2066-U+2069) and the RTL override U+202E can display instructions reversed; the invisible tag block (U+E0000-U+E007F) and zero-width characters carry hidden instructions; ANSI escapes and NUL truncation alter terminal behaviour; base64 can hide in comments — confirm the bytes actually reach the sink',
+    tags: ['Unicode', 'smuggling', 'invisible characters'],
   },
   'builtin:sec-audit-39': {
-    title: 'Crypto and randomness audit',
-    text: 'Cryptography audit: flag MD5/SHA1/DES/RC4 and homemade crypto; weak randomness (Math.random-style PRNG) in security contexts; hard-coded keys, salts and IVs; TLS 1.0/1.1 and weak suites; ECB mode and IV/nonce reuse',
-    tags: ['cryptography', 'randomness', 'TLS'],
+    title: 'Cryptographic misuse audit',
+    text: 'Cryptographic misuse audit: password hashing must be argon2id/bcrypt/scrypt with a re-tuned cost factor (CWE-916); compare tokens with hmac.compare_digest, never === (CWE-208, timing oracle); Math.random-style weak randomness is not for tokens or session ids (CWE-338); plus IV/nonce reuse, ECB mode and hand-rolled crypto (CWE-1240)',
+    tags: ['cryptography', 'CWE-208', 'weak randomness'],
   },
   'builtin:sec-audit-40': {
-    title: 'Session and token lifecycle',
-    text: 'Session and token lifecycle audit: real server-side invalidation on logout, old sessions and Remember-Me tokens invalidated after a password change, reset tokens single-use with short TTL (≤15 min), concurrent sessions and kick-out, session ID rotation on login',
-    tags: ['session', 'token', 'lifecycle'],
+    title: 'Token and session lifecycle',
+    text: 'Token and session lifecycle: rotate the refresh token on every use and bind it to device and audience — presenting an already-rotated token is a compromise signal, revoke the whole family (CWE-613); sensitive actions need fresh verification, not "MFA was used at login" (CWE-308); support impersonation must keep actor distinct from effective_user and be audited (CWE-778)',
+    tags: ['token', 'refresh token', 'CWE-613'],
   },
 }
