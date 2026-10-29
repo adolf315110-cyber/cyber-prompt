@@ -36,6 +36,11 @@ export interface RecipeItem {
   cardId: string
   vars: Record<string, string>
   enabled: boolean
+  /**
+   * 可选：存配方时所在的槽位。缺省时按该卡当前的 mode 落位。
+   * 可选字段 = 只增版不破坏（spec §12），旧备份文件照样能读。
+   */
+  mode?: Mode
 }
 
 export interface Recipe {
@@ -67,6 +72,19 @@ export interface ComposeState {
 export interface PersistedData {
   schemaVersion: number
   userCards: Card[]
+  recipes: Recipe[]
+  compose: ComposeState
+}
+
+/**
+ * 导出文件格式（spec §4）：
+ * 只含用户卡与配方（内置卡随代码走，不导出），拼装区状态一并带上作为完整备份。
+ */
+export interface ExportFile {
+  schemaVersion: number
+  app: 'prompt-blocks'
+  exportedAt: string
+  cards: Card[]
   recipes: Recipe[]
   compose: ComposeState
 }

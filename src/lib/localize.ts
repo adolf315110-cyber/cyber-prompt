@@ -11,7 +11,8 @@ import type { Lang } from './i18n'
  */
 export function localizeCard(card: Card, lang: Lang, en: Record<string, CardI18n> = EN_CARDS): Card {
   if (lang === 'zh') return card
-  const ov = en[card.id]
+  // 只认自有属性：卡 id 可能是 constructor / __proto__，直读会命中原型链拿到不相干的东西
+  const ov = Object.prototype.hasOwnProperty.call(en, card.id) ? en[card.id] : undefined
   if (!ov) return card
   return {
     ...card,
@@ -19,7 +20,9 @@ export function localizeCard(card: Card, lang: Lang, en: Record<string, CardI18n
     text: ov.text,
     tags: ov.tags,
     vars: card.vars.map((v) => {
-      const t = ov.vars?.[v.name]
+      // 只认自有属性：变量名可能是 constructor / __proto__，直读会命中原型链
+      const t =
+        ov.vars && Object.prototype.hasOwnProperty.call(ov.vars, v.name) ? ov.vars[v.name] : undefined
       return t
         ? { name: t.name, default: t.default, key: v.key ?? v.name }
         : { ...v, key: v.key ?? v.name }

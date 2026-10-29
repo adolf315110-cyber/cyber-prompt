@@ -1,5 +1,5 @@
 import type { Dispatch } from 'react'
-import { hasUnresolvedVars } from '../lib/cardUtils'
+import { hasUnresolvedVars, readVar } from '../lib/cardUtils'
 import { renderCardText } from '../lib/compose'
 import type { UiStrings } from '../lib/i18n'
 import type { AppAction } from '../lib/reducer'
@@ -69,7 +69,7 @@ export function SlotItemRow({ item, card, slot, index, count, dispatch, highligh
                 <span>{v.name}</span>
                 <input
                   type="text"
-                  value={item.vars[storeKey] ?? ''}
+                  value={readVar(item.vars, storeKey)}
                   placeholder={v.default ?? v.name}
                   onChange={(e) =>
                     dispatch({ type: 'setVar', slot, instanceId: item.instanceId, name: storeKey, value: e.target.value })

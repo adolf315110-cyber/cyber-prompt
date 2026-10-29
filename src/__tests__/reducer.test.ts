@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import { appReducer } from '../lib/reducer'
-import { defaultData } from '../lib/storage'
-import type { PersistedData } from '../types'
+import { defaultCompose, defaultData } from '../lib/storage'
+import type { Card, PersistedData, Recipe } from '../types'
 
 function withData(): PersistedData {
   const data = defaultData()
@@ -85,5 +85,96 @@ describe('appReducer', () => {
     expect(data).toEqual(snapshot)
     expect(next.userCards).toBe(data.userCards)
     expect(next.recipes).toBe(data.recipes)
+  })
+})
+
+describe('appReducer · 自定义卡', () => {
+  const userCard: Card = {
+    id: 'user:2',
+    category: 'coding',
+    title: '新卡',
+    text: '内容',
+    mode: 'block',
+    vars: [],
+    tags: ['x'],
+    builtin: false,
+  }
+
+  it('addUserCard 追加到用户卡列表末尾', () => {
+    const data = withData()
+    const next = appReducer(data, { type: 'addUserCard', card: userCard })
+    expect(next.userCards.map((c) => c.id)).toEqual(['user:1', 'user:2'])
+    expect(data.userCards).toHaveLength(1)
+  })
+
+  it('updateUserCard 只替换同 id 的卡', () => {
+    const data = withData()
+    const next = appReducer(data, { type: 'updateUserCard', card: { ...userCard, id: 'user:1', title: '改过的' } })
+    expect(next.userCards[0].title).toBe('改过的')
+    expect(next.userCards).toHaveLength(1)
+  })
+
+  it('updateUserCard 对不存在的 id 不新增卡', () => {
+    const data = withData()
+    const next = appReducer(data, { type: 'updateUserCard', card: { ...userCard, id: 'user:不存在' } })
+    expect(next.userCards).toHaveLength(1)
+  })
+
+  it('removeUserCard 只删指定卡', () => {
+    const data = withData()
+    const withTwo = appReducer(data, { type: 'addUserCard', card: userCard })
+    const next = appReducer(withTwo, { type: 'removeUserCard', cardId: 'user:1' })
+    expect(next.userCards.map((c) => c.id)).toEqual(['user:2'])
+  })
+})
+
+describe('appReducer · 配方', () => {
+  const recipe: Recipe = { id: 'r2', name: '新配方', baseSentence: '基础', items: [] }
+
+  it('saveRecipe 追加配方', () => {
+    const next = appReducer(withData(), { type: 'saveRecipe', recipe })
+    expect(next.recipes.map((r) => r.id)).toEqual(['r1', 'r2'])
+  })
+
+  it('renameRecipe 只改指定配方的名字', () => {
+    const next = appReducer(withData(), { type: 'renameRecipe', recipeId: 'r1', name: '改名了' })
+    expect(next.recipes[0].name).toBe('改名了')
+  })
+
+  it('removeRecipe 只删指定配方', () => {
+    const data = appReducer(withData(), { type: 'saveRecipe', recipe })
+    const next = appReducer(data, { type: 'removeRecipe', recipeId: 'r1' })
+    expect(next.recipes.map((r) => r.id)).toEqual(['r2'])
+  })
+})
+
+describe('appReducer · 数据管理', () => {
+  it('setCompose 整体替换拼装区', () => {
+    const compose = { baseSentence: 'x', slots: { prefix: [], suffix: [], block: [] }, manualText: null }
+    const next = appReducer(withData(), { type: 'setCompose', compose })
+    expect(next.compose).toEqual(compose)
+  })
+
+  it('importData 覆盖用户卡、配方与拼装区', () => {
+    const compose = { baseSentence: '导入的', slots: { prefix: [], suffix: [], block: [] }, manualText: null }
+    const next = appReducer(withData(), {
+      type: 'importData',
+      userCards: [{ id: 'user:x', category: 'general', title: 't', text: 'x', mode: 'suffix', vars: [], tags: [], builtin: false }],
+      recipes: [{ id: 'r9', name: 'n', baseSentence: 'b', items: [] }],
+      compose,
+    })
+    expect(next.userCards.map((c) => c.id)).toEqual(['user:x'])
+    expect(next.recipes.map((r) => r.id)).toEqual(['r9'])
+    expect(next.compose).toEqual(compose)
+  })
+
+  it('clearAll 清空用户卡、配方与拼装区，但保留 schemaVersion', () => {
+    const data = withData()
+    data.compose.baseSentence = '旧拼装'
+    const next = appReducer(data, { type: 'clearAll' })
+    expect(next.userCards).toEqual([])
+    expect(next.recipes).toEqual([])
+    expect(next.compose).toEqual(defaultCompose())
+    expect(next.schemaVersion).toBe(data.schemaVersion)
   })
 })

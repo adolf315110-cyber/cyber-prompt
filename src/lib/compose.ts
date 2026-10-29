@@ -1,4 +1,5 @@
 import type { Card, ComposeState, SlotItem } from '../types'
+import { readVar } from './cardUtils'
 import type { Lang } from './i18n'
 
 const TERMINAL_PUNCT = /[。！？.!?]$/
@@ -11,7 +12,9 @@ function escapeRegExp(s: string): string {
 export function renderCardText(card: Card, vars: Record<string, string>): string {
   let text = card.text
   for (const v of card.vars) {
-    const value = (vars[v.key ?? v.name] ?? v.default ?? '').trim()
+    // 非字符串值（来自手改的导入文件等）一律按字符串处理，不让 .trim() 抛错
+    const raw = readVar(vars, v.key ?? v.name) || v.default || ''
+    const value = (typeof raw === 'string' ? raw : String(raw)).trim()
     if (!value) continue
     const token = new RegExp('\\{' + escapeRegExp(v.name) + '\\}', 'g')
     text = text.replace(token, value)

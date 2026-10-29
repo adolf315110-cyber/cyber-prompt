@@ -253,6 +253,8 @@ body {
   font-size: 12px;
   line-height: 1.5;
   box-shadow: 0 6px 20px rgba(0, 0, 0, 0.25);
+  /* 纯展示浮层：不参与命中测试。否则它会盖住下一行的卡片，导致下层卡片点不动 */
+  pointer-events: none;
 }
 
 .card-item:hover .card-tip {
@@ -267,6 +269,12 @@ body {
 .tip-note {
   margin: 6px 0 0;
   color: #cbd5e1;
+}
+
+.tip-hint {
+  margin: 6px 0 0;
+  color: #94a3b8;
+  font-size: 11px;
 }
 
 /* 拼装区 */
@@ -477,5 +485,551 @@ button.primary:disabled {
   border-radius: 999px;
   font-size: 13px;
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
-  z-index: 50;
+  /* 高于弹窗遮罩（.modal-mask 为 100）：弹窗内触发的提示（如导出成功）不能被遮住 */
+  z-index: 200;
+}
+
+/* ---------------- Step 2：工具条 / 配方 / 自定义卡 / 弹窗 ---------------- */
+
+/* 顶部工具条 */
+.app-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 6px 16px;
+  border-bottom: 1px solid var(--border);
+  background: var(--pane);
+}
+
+.recipe-bar {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex: 1;
+  min-width: 0;
+  flex-wrap: wrap;
+}
+
+.recipe-label {
+  font-size: 12px;
+  color: var(--muted);
+  font-weight: 600;
+}
+
+.recipe-chip {
+  display: inline-flex;
+  align-items: center;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: #fff;
+  overflow: hidden;
+}
+
+.recipe-chip button {
+  border: none;
+  background: none;
+  cursor: pointer;
+  font-size: 12px;
+  padding: 3px 7px;
+  color: var(--muted);
+}
+
+.recipe-chip button:hover {
+  background: var(--primary-weak);
+  color: var(--primary);
+}
+
+.recipe-chip .recipe-name {
+  color: var(--text);
+  padding: 3px 10px;
+}
+
+.recipe-chip .recipe-name:hover {
+  color: var(--primary);
+}
+
+.recipe-chip input {
+  border: none;
+  outline: none;
+  padding: 3px 10px;
+  font: inherit;
+  font-size: 12px;
+  width: 150px;
+}
+
+.recipe-add {
+  border: 1px dashed var(--border);
+  background: none;
+  border-radius: 999px;
+  padding: 3px 10px;
+  font-size: 12px;
+  cursor: pointer;
+  color: var(--muted);
+}
+
+.recipe-add:hover:not(:disabled) {
+  border-color: var(--primary);
+  color: var(--primary);
+}
+
+.recipe-add:disabled {
+  opacity: 0.45;
+  cursor: default;
+}
+
+.toolbar-btn {
+  border: 1px solid var(--border);
+  background: #fff;
+  border-radius: var(--radius);
+  padding: 4px 12px;
+  font-size: 12px;
+  cursor: pointer;
+  color: var(--text);
+}
+
+.toolbar-btn:hover {
+  border-color: var(--primary);
+  color: var(--primary);
+}
+
+/* 卡库分栏 */
+.lib-tabs {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin-bottom: 8px;
+}
+
+.lib-tabs button {
+  border: 1px solid var(--border);
+  background: #fff;
+  border-radius: 999px;
+  padding: 3px 10px;
+  font-size: 12px;
+  cursor: pointer;
+  color: var(--muted);
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  white-space: nowrap;
+}
+
+.lib-tabs button.active {
+  border-color: var(--primary);
+  background: var(--primary-weak);
+  color: var(--primary);
+  font-weight: 600;
+}
+
+.lib-tabs .lib-new {
+  margin-left: auto;
+  border-style: dashed;
+}
+
+.lib-tabs .lib-new:hover {
+  border-color: var(--primary);
+  color: var(--primary);
+}
+
+/* 预置卡上的「复制为自定义」角标（悬停显现） */
+.card-copy {
+  position: absolute;
+  right: 6px;
+  bottom: 6px;
+  width: 22px;
+  height: 22px;
+  border: 1px solid var(--border);
+  background: #fff;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 12px;
+  line-height: 1;
+  color: var(--muted);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.12s;
+}
+
+.card-item:hover .card-copy,
+.card-copy:focus-visible {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.card-copy:hover {
+  border-color: var(--primary);
+  color: var(--primary);
+}
+
+/* 我的卡片 */
+.my-cards {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.my-group-head {
+  font-size: 12px;
+  margin: 0 0 4px;
+  color: #4b5563;
+  display: flex;
+  gap: 6px;
+  align-items: center;
+}
+
+.my-card {
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: #fff;
+  margin-bottom: 6px;
+  overflow: hidden;
+}
+
+.my-card-main {
+  width: 100%;
+  text-align: left;
+  border: none;
+  background: none;
+  padding: 7px 8px 4px;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.my-card-main:hover {
+  background: var(--primary-weak);
+}
+
+.my-card-top {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.my-card-title {
+  font-size: 13px;
+  flex: 1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.my-card-text {
+  font-size: 12px;
+  color: var(--muted);
+  line-height: 1.6;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.my-card-actions {
+  display: flex;
+  gap: 2px;
+  justify-content: flex-end;
+  padding: 0 6px 4px;
+}
+
+.my-card-actions button {
+  border: none;
+  background: none;
+  cursor: pointer;
+  color: var(--muted);
+  font-size: 12px;
+  padding: 2px 5px;
+  border-radius: 4px;
+}
+
+.my-card-actions button:hover {
+  background: var(--primary-weak);
+  color: var(--primary);
+}
+
+/* 弹窗 */
+.modal-mask {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 20, 30, 0.45);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 100;
+  padding: 20px;
+}
+
+.modal {
+  background: var(--pane);
+  border-radius: 10px;
+  width: min(540px, 100%);
+  max-height: 86vh;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+}
+
+.modal-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--border);
+}
+
+.modal-head h3 {
+  margin: 0;
+  font-size: 14px;
+}
+
+.modal-close {
+  border: none;
+  background: none;
+  font-size: 18px;
+  line-height: 1;
+  cursor: pointer;
+  color: var(--muted);
+  padding: 2px 6px;
+  border-radius: 4px;
+}
+
+.modal-close:hover {
+  background: var(--primary-weak);
+  color: var(--primary);
+}
+
+.modal-body {
+  padding: 14px 16px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.modal-foot {
+  padding: 12px 16px;
+  border-top: 1px solid var(--border);
+  display: flex;
+  gap: 8px;
+}
+
+.modal-foot button:not(.primary):not(.danger) {
+  background: #fff;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 8px 12px;
+  cursor: pointer;
+  font-size: 13px;
+  color: var(--text);
+}
+
+.modal-foot button:not(.primary):not(.danger):hover {
+  border-color: var(--primary);
+  color: var(--primary);
+}
+
+/* 卡片编辑器表单 */
+.form-field {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.form-label {
+  font-size: 12px;
+  color: var(--muted);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+}
+
+.counter {
+  font-size: 11px;
+  color: var(--muted);
+  font-variant-numeric: tabular-nums;
+}
+
+.form-field input,
+.form-field select,
+.form-field textarea {
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 7px 9px;
+  font: inherit;
+  font-size: 13px;
+  width: 100%;
+  background: #fff;
+  color: var(--text);
+}
+
+.form-field textarea {
+  resize: vertical;
+  line-height: 1.6;
+}
+
+.form-field input:focus,
+.form-field select:focus,
+.form-field textarea:focus {
+  outline: none;
+  border-color: var(--primary);
+}
+
+.form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.form-errors {
+  margin: 0;
+  padding: 8px 10px 8px 28px;
+  background: var(--warn-bg);
+  color: var(--warn);
+  border-radius: var(--radius);
+  font-size: 12px;
+  line-height: 1.7;
+}
+
+.var-edit-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.var-edit-list .var-field {
+  flex-direction: row;
+  align-items: center;
+  gap: 6px;
+}
+
+.var-edit-list .var-field span {
+  min-width: 90px;
+  color: var(--text);
+  font-size: 12px;
+}
+
+.var-edit-list .var-field input {
+  flex: 1;
+  width: auto;
+}
+
+/* 数据管理 */
+.data-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.data-actions button {
+  border: 1px solid var(--border);
+  background: #fff;
+  border-radius: var(--radius);
+  padding: 9px 12px;
+  cursor: pointer;
+  font-size: 13px;
+  color: var(--text);
+  text-align: left;
+}
+
+.data-actions button:hover {
+  border-color: var(--primary);
+  color: var(--primary);
+}
+
+/* 视觉隐藏而非 display:none：保留在无障碍树中、可被 Tab 聚焦 */
+.hidden-file {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.confirm-message {
+  font-size: 13px;
+  line-height: 1.7;
+}
+
+.confirm-message p {
+  margin: 0 0 6px;
+}
+
+.confirm-message p:last-child {
+  margin-bottom: 0;
+}
+
+/* 危险操作按钮 */
+button.danger {
+  background: #d93025;
+  border: none;
+  color: #fff;
+  padding: 8px 18px;
+  border-radius: var(--radius);
+  cursor: pointer;
+  font-size: 13px;
+}
+
+button.danger:hover {
+  background: #c02a20;
+}
+
+button.danger-ghost {
+  border: 1px solid #f0c2be;
+  background: #fff;
+  color: #d93025;
+  border-radius: var(--radius);
+  padding: 8px 12px;
+  cursor: pointer;
+  font-size: 13px;
+}
+
+button.danger-ghost:hover {
+  background: #fdf1f0;
+}
+
+/* 错误兜底界面 */
+.error-screen {
+  max-width: 560px;
+  margin: 12vh auto;
+  padding: 24px;
+  background: var(--pane);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  text-align: left;
+}
+
+.error-screen h2 {
+  margin: 0 0 8px;
+  font-size: 16px;
+}
+
+.error-screen p {
+  margin: 0 0 12px;
+  color: var(--muted);
+  line-height: 1.7;
+}
+
+.error-screen details {
+  margin-bottom: 14px;
+  font-size: 12px;
+  color: var(--muted);
+}
+
+.error-screen pre {
+  margin: 8px 0 0;
+  padding: 10px;
+  background: #fbfcfd;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  font-size: 11px;
+  line-height: 1.6;
+  white-space: pre-wrap;
+  word-break: break-word;
+  max-height: 240px;
+  overflow: auto;
 }
