@@ -8,7 +8,7 @@ import type { CardI18n } from '../../../types'
 export const SEC_AUDIT_EN: Record<string, CardI18n> = {
   'builtin:sec-audit-01': {
     title: 'Map trust boundaries first',
-    text: 'Start with threat modeling and trust boundaries: list every external input (query/body/cookie/header, uploaded files, MQ messages and callbacks, env vars) and mark where each piece of data crosses a trust zone',
+    text: 'Start with threat modeling and trust boundaries: list every external input (query/body/cookie/header, uploaded files, MQ messages and callbacks, env vars), then mark where each piece crosses a trust zone and where it lands (SQL/command/template/file path/log); a crossing that lands in an interpreter is a candidate — a crossing with no sink stays unverified',
     tags: ['threat modeling', 'trust boundary', 'attack surface'],
   },
   'builtin:sec-audit-02': {
@@ -29,7 +29,7 @@ export const SEC_AUDIT_EN: Record<string, CardI18n> = {
   },
   'builtin:sec-audit-05': {
     title: 'Data flow first',
-    text: 'Start from a data-flow diagram (DFD): at every transform node between entry and storage, check that validation and encoding match (parameterized queries, allowlists, context-aware escaping, type and length constraints)',
+    text: 'Start from a data-flow diagram (DFD): at every transform node between entry and storage, check that validation and encoding match (parameterized queries, allowlists, context-aware escaping, type and length constraints); any hop whose check does not fit the sink context (a length check standing guard against injection) is a candidate, and blank cells stay unverified',
     tags: ['data flow', 'DFD', 'input validation'],
   },
   'builtin:sec-audit-06': {
@@ -44,7 +44,7 @@ export const SEC_AUDIT_EN: Record<string, CardI18n> = {
   },
   'builtin:sec-audit-08': {
     title: 'File operation audit',
-    text: 'File operation audit (Path Traversal/Zip Slip): do read/write/delete paths come from user input without normalization (../, absolute paths, UNC, symlinks, extraction paths)? Are upload name and storage path separated? Are temp files race-free?',
+    text: 'File operation audit (Path Traversal/Zip Slip): do read/write/delete paths come from user input without normalization (../, absolute paths, UNC, symlinks, extraction paths)? Are upload name and storage path separated? Are temp files race-free? Confirmation = you actually read a known file outside the workspace or write into a directory you control; a successful request alone does not count',
     tags: ['path traversal', 'Zip Slip', 'file ops'],
   },
   'builtin:sec-audit-09': {
@@ -59,7 +59,7 @@ export const SEC_AUDIT_EN: Record<string, CardI18n> = {
   },
   'builtin:sec-audit-11': {
     title: 'Static first, then dynamic',
-    text: 'Start with a SAST pass to locate suspects (dangerous functions, string concatenation, config switches, dependency manifests), then verify dynamic reachability and filter chains — show evidence for each step separately',
+    text: 'Start with a SAST pass to locate suspects (dangerous functions, string concatenation, config switches, dependency manifests), then verify dynamic reachability and filter chains, showing evidence for each step; a static-only hit caps at [high confidence] and must not be rated, only a dynamic observation promotes it to [verified], and a dead dynamic path must state which link broke',
     tags: ['SAST', 'dynamic verification'],
   },
   'builtin:sec-audit-12': {
@@ -69,7 +69,7 @@ export const SEC_AUDIT_EN: Record<string, CardI18n> = {
   },
   'builtin:sec-audit-13': {
     title: 'Deserialization deep dive',
-    text: 'Deserialization review (Insecure Deserialization): list all {language} entry points (readObject, unserialize, pickle) and test the type controls, gadget chain reachability (Commons-Collections/Fastjson chains), and component versions vs known CVEs',
+    text: 'Deserialization review: list all {language} entry points (readObject, unserialize, pickle), test the type controls, gadget chain reachability (Commons-Collections/Fastjson) and component versions against CVEs; confirmation = a DNSLog callback or command output — a payload you only constructed in code does not count',
     tags: ['deserialization', 'gadget chain', 'CVE'],
     vars: { 语言: { name: 'language', default: 'Java' } },
   },
@@ -80,7 +80,7 @@ export const SEC_AUDIT_EN: Record<string, CardI18n> = {
   },
   'builtin:sec-audit-15': {
     title: 'Unsafe platform defaults',
-    text: 'Start with whether the platform defaults are themselves unsafe: orchestrator secrets only base64-encoded with no encryption provider, container images with no USER instruction running as root, caches and KV stores with authentication off until a password is set; also test the origin directly behind any WAF/CDN, whose rules mask source vulnerabilities',
+    text: 'Start with whether the platform defaults are themselves unsafe: orchestrator secrets only base64-encoded, images with no USER running as root, caches and KV stores with authentication off while listening on the internal network; confirmation = an unauthenticated request returns data or a write succeeds (plaintext in config does not count); also retest the origin directly, bypassing WAF/CDN, whose rules mask source vulnerabilities',
     tags: ['config security', 'defaults', 'WAF'],
   },
   'builtin:sec-audit-16': {
@@ -110,7 +110,7 @@ export const SEC_AUDIT_EN: Record<string, CardI18n> = {
   },
   'builtin:sec-audit-21': {
     title: 'Sensitive data and leak handling',
-    text: 'Sensitive data inventory (Secrets/PII): where keys, tokens and personal data live — code, config, logs, caches, error pages, backups and egress (webhooks, email, analytics); once a secret is exposed, handle it by exposure window: rotation stops future use only, and access logs across the window still need review',
+    text: 'Sensitive data inventory (Secrets/PII): where keys, tokens and personal data live — code, config, logs, caches, error pages, backups and egress (webhooks, email, analytics); exposure counts only when it is readable without credentials or across tenants — a secret in code visible only to authorized readers stays unverified; handle by exposure window: rotation stops future use only, and access logs across the window still need review',
     tags: ['sensitive data', 'Secrets', 'leak response'],
   },
   'builtin:sec-audit-22': {
@@ -126,7 +126,7 @@ export const SEC_AUDIT_EN: Record<string, CardI18n> = {
   },
   'builtin:sec-audit-24': {
     title: 'Chain findings together',
-    text: 'and derive chains (kill chain): feed each low-severity finding into the next step (info leak→credential theft→BOLA→bulk export); note preconditions, required privileges and final impact per hop',
+    text: 'and derive chains (kill chain): feed each low-severity finding into the next step (info leak→credential theft→BOLA→bulk export), noting preconditions, required privileges and final impact per hop; a chain holds only when every hop has been verified on its own — one hop built on inference demotes the whole chain to a hypothesis',
     tags: ['vulnerability chain', 'kill chain'],
   },
   'builtin:sec-audit-25': {
@@ -146,7 +146,7 @@ export const SEC_AUDIT_EN: Record<string, CardI18n> = {
   },
   'builtin:sec-audit-28': {
     title: 'File parsing safety',
-    text: 'File parsing safety: disable external entities in {dataFormat} (XXE), cap size and nesting depth (billion laughs/XEE), forbid XSLT and schema external references, make upload directories non-executable and guard extraction against Zip Slip',
+    text: 'File parsing safety: disable external entities in {dataFormat} (XXE), cap size and nesting depth (billion laughs/XEE), forbid XSLT and schema external references; confirmation = the entity actually retrieved a file (system file content reflected) or an OOB callback fired — a parse error alone does not count; keep upload directories non-executable and guard extraction against Zip Slip',
     tags: ['XXE', 'Zip Slip', 'parsing'],
     vars: { 数据格式: { name: 'dataFormat', default: 'XML' } },
   },
@@ -192,7 +192,7 @@ export const SEC_AUDIT_EN: Record<string, CardI18n> = {
   },
   'builtin:sec-audit-37': {
     title: 'Logging and monitoring audit',
-    text: 'Logging and monitoring audit: auth successes/failures and lockouts must be logged (with source IP/UA), authorization failures record who/what/action, secrets masked before logging, alerts covering password spraying and bulk export',
+    text: 'Logging and monitoring audit: auth successes/failures and lockouts must be logged (with source IP/UA), authorization failures record who/what/action, secrets masked before logging, alerts covering password spraying and bulk export; verification = trigger a failed login and an unauthorized access yourself and see whether the log line and alert actually appear — grepping for log calls in code does not count',
     tags: ['logging', 'monitoring', 'masking'],
   },
   'builtin:sec-audit-38': {
