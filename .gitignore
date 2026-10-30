@@ -7,3 +7,7 @@ dist/
 
 # 本地工作产物（体积大，含可再生成的中间文件与解包副本），不入仓库
 docs/experiments/
+
+# 第三方 agent 提示词原文：版权归各项目、许可证不一（含 NOASSERTION），
+# 只在本地留存查阅；仓库内仅保留自己写的调研分析
+docs/research/agent-prompts/raw/
