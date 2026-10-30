@@ -262,7 +262,7 @@ export const SEC_AUDIT_CARDS: Card[] = [
     id: 'builtin:sec-audit-25',
     category: 'sec-audit',
     title: '注入面清点',
-    text: '注入面清点：SQL/NoSQL（$gt 绕过）、OS 命令、SSTI、LDAP、XPath、CRLF、日志注入、CSV 公式、SSI、ORM 直拼、二阶注入（先存后取再拼）；逐点判「输入是否到达解释器」，到达即记候选，给最小验证串（\'、"、{{7*7}}、;id），以回显、报错、时延三者之一确认',
+    text: '注入面：SQL/NoSQL（$gt 绕过）、OS 命令、SSTI、LDAP、XPath、CRLF、日志/CSV 注入、SSI、ORM 直拼、二阶注入（先存后拼）；逐点判「输入是否到解释器」，到达记候选给验证串（\'、"、{{7*7}}、;id），以回显/报错/时延确认；逐项给观测，未观测标[待验证]，不汇总成「已检查」',
     mode: 'block',
     vars: [],
     tags: ['注入', 'CSV 注入', '二阶注入'],

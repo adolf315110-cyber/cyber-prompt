@@ -28,7 +28,7 @@ export const GENERAL_EN: Record<string, CardI18n> = {
   },
   'builtin:general-05': {
     title: 'Define success criteria',
-    text: 'Confirm the success criteria for this task with me first: what counts as done, what counts as extra credit, what is explicitly out of scope',
+    text: 'Confirm the success criteria and the abandon criteria for this task with me first: what counts as done, what counts as extra credit, what is explicitly out of scope, and which conditions mean stop instead of guessing further',
     tags: ['success criteria', 'scope'],
   },
   'builtin:general-06': {

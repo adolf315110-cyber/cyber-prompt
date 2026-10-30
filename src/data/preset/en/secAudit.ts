@@ -131,7 +131,7 @@ export const SEC_AUDIT_EN: Record<string, CardI18n> = {
   },
   'builtin:sec-audit-25': {
     title: 'Injection surface inventory',
-    text: 'Injection surface inventory: SQL/NoSQL ($gt bypass), OS command, SSTI, LDAP, XPath, CRLF, log injection, CSV formula, SSI, ORM field concatenation, second-order injection (stored then re-concatenated); per site decide whether input reaches an interpreter — if it does, log a candidate and send a minimal probe (\', ", {{7*7}}, ;id), then confirm via reflection, error or time delay',
+    text: 'Injection surface inventory: SQL/NoSQL ($gt bypass), OS command, SSTI, LDAP, XPath, CRLF, log/CSV injection, SSI, ORM field concatenation, second-order injection (stored then re-concatenated); per site decide whether input reaches an interpreter; if so, log a candidate and send a probe (\', ", {{7*7}}, ;id), then confirm via reflection, error or time delay; report each item with its own observation, mark unobserved ones [to verify], never summarize as "all checked"',
     tags: ['injection', 'CSV injection', 'second-order'],
   },
   'builtin:sec-audit-26': {

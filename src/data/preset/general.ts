@@ -49,7 +49,7 @@ export const GENERAL_CARDS: Card[] = [
     id: 'builtin:general-05',
     category: 'general',
     title: '先定成功标准',
-    text: '先和我确认本次任务的成功标准：什么算完成、什么算加分、什么明确不做',
+    text: '先和我确认本次任务的成功标准与放弃条件：什么算完成、什么算加分、什么明确不做，以及出现什么情况就停手而不是继续猜',
     mode: 'prefix',
     vars: [],
     tags: ['成功标准', '范围'],

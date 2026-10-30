@@ -107,6 +107,63 @@ describe('判据契约 · 英文层必须与中文层同口径', () => {
   })
 })
 
+/**
+ * 中英跨层契约（2026-10-30，agent 提示词落地轮）
+ *
+ * 背景：仓库的测试能保证英译层"有翻译、无中文、长度合规"，但保证不了**两层语义等价**——
+ * 英文把中文写反了，测试照样绿。本组用例把本轮新增/增补的卡的关键判据词在两层同时锁住。
+ * 维护约定：改这些卡的文案时，中英两层的关键词必须一起改。
+ */
+describe('中英跨层契约 · 本轮新增与增补的卡', () => {
+  it('output-11 决策记录：两层都要有"决策记录"这件事', () => {
+    expect(zh('builtin:output-11').text).toContain('决策记录')
+    expect(zh('builtin:output-11').text).toContain('自包含')
+    expect(en('builtin:output-11').text).toMatch(/decision log/i)
+    expect(en('builtin:output-11').text).toMatch(/self-contained/i)
+  })
+
+  it('output-09 按复杂度分档：两层都要有三档', () => {
+    expect(zh('builtin:output-09').text).toMatch(/简单.*标准.*(大|复杂)/)
+    const enText = en('builtin:output-09').text
+    expect(enText).toMatch(/simple change/i)
+    expect(enText).toMatch(/standard change/i)
+    expect(enText).toMatch(/large change/i)
+  })
+
+  it('pentest-02 环境自检：回连自测这条判据两层都在', () => {
+    expect(zh('builtin:pentest-02').text).toContain('OOB')
+    expect(zh('builtin:pentest-02').text).toContain('未回连')
+    const enText = en('builtin:pentest-02').text
+    expect(enText).toContain('OOB')
+    expect(enText).toMatch(/no OOB/i)
+  })
+
+  it('pentest-39 节奏纪律：不重试 + 放弃条件两层都在', () => {
+    expect(zh('builtin:pentest-39').text).toContain('重试')
+    expect(zh('builtin:pentest-39').text).toContain('放弃条件')
+    const enText = en('builtin:pentest-39').text
+    expect(enText).toMatch(/re-running the same command/i)
+    expect(enText).toMatch(/abandon criteria/i)
+  })
+
+  it('general-05：成功标准与放弃条件必须成对出现', () => {
+    expect(zh('builtin:general-05').text).toContain('成功标准')
+    expect(zh('builtin:general-05').text).toContain('放弃条件')
+    const enText = en('builtin:general-05').text
+    expect(enText).toMatch(/success criteria/i)
+    expect(enText).toMatch(/abandon criteria/i)
+  })
+
+  it('逐项观测纪律：置信度标记中英用同一套词', () => {
+    for (const id of ['builtin:sec-audit-25', 'builtin:pentest-33']) {
+      expect(zh(id).text, id).toContain('[待验证]')
+      expect(zh(id).text, id).toContain('汇总')
+      expect(en(id).text, id).toContain('[to verify]')
+      expect(en(id).text, id).toMatch(/never summarize/i)
+    }
+  })
+})
+
 describe('卡库卫生', () => {
   // 不查 TODO/待补 一类词——卡正文里有正当用法（如要求输出标注未完成项与后续 TODO）。
   // 只查真正会破坏功能的：正文被删空或截断。

@@ -45,13 +45,13 @@ export const OUTPUT_EN: Record<string, CardI18n> = {
   },
   'builtin:output-08': {
     title: 'Reproduction format',
-    text: 'Reproduction format: preconditions → numbered steps (with commands/requests) → expected result → actual result; all four parts are mandatory',
+    text: 'Reproduction format: preconditions → numbered steps (with commands/requests) → expected result → actual result; all four parts are mandatory; for high-severity findings give two mutually independent reproduction paths (e.g. curl and Python requests)',
     tags: ['repro', 'format'],
   },
   'builtin:output-09': {
-    title: 'For developer readers',
-    text: 'Audience: developers — use terms directly and give code-level detail and fixes, not a management-style overview',
-    tags: ['audience', 'developers'],
+    title: 'Scale depth to complexity',
+    text: 'Scale output depth to task complexity: simple change → changes + verification checklist; standard change → objective, key files, implementation steps, verification; large change → background, scope and impact, proposed solution, alternatives considered, phased plan, verification, migration and rollback',
+    tags: ['tiering', 'verification', 'output structure'],
   },
   'builtin:output-10': {
     title: 'Cite sources',
@@ -59,9 +59,9 @@ export const OUTPUT_EN: Record<string, CardI18n> = {
     tags: ['sources', 'marking'],
   },
   'builtin:output-11': {
-    title: 'One-page overview',
-    text: 'Start with a one-page overview: a risk landscape table + the three most important action items; detailed analysis goes in later sections',
-    tags: ['overview', 'summary'],
+    title: 'Decision log',
+    text: 'Decision log: append one line per step — "Step N | decision | outcome" — and state which observation forced any change of direction; each step must be self-contained so a reader understands why it was done without reading earlier steps',
+    tags: ['decision log', 'traceability', 'self-contained'],
   },
   'builtin:output-12': {
     title: 'Glossary table',
@@ -75,7 +75,7 @@ export const OUTPUT_EN: Record<string, CardI18n> = {
   },
   'builtin:output-14': {
     title: 'Consistent formatting',
-    text: 'Define the output conventions first: section numbering, code-block language tags, table and list usage rules — consistent throughout',
+    text: 'Define the output conventions first: section numbering, code-block language tags, table and list usage rules — consistent throughout; the same input should produce the same report structure so several audits can be compared side by side',
     tags: ['format', 'conventions'],
   },
   'builtin:output-15': {
@@ -105,7 +105,7 @@ export const OUTPUT_EN: Record<string, CardI18n> = {
   },
   'builtin:output-20': {
     title: 'Audience adaptation',
-    text: 'Audience: {audience}; adjust detail level and wording accordingly (developers want code-level detail, management wants risk and cost)',
+    text: 'Audience: {audience}; adjust detail level and wording accordingly (developers want code-level detail and terms used directly, management wants risk and cost)',
     tags: ['audience', 'detail level'],
     vars: { 受众: { name: 'audience', default: 'developer' } },
   },
