@@ -90,7 +90,7 @@ export const SEC_AUDIT_EN: Record<string, CardI18n> = {
   },
   'builtin:sec-audit-17': {
     title: 'Access control matrix',
-    text: 'Access-control matrix (IDOR/BOLA): resources × actions × roles (anonymous/user A/user B/admin), checking accessibility cell by cell; focus on endpoints that query by ID alone (horizontal) and admin functions reachable by regular users (BFLA, vertical)',
+    text: 'Access-control matrix (IDOR/BOLA): resources × actions × roles (anonymous/user A/user B/admin), cell by cell; a hit means the response body carries another user\'s object data — 403/404 proves nothing, retry with other paths, methods (GET→POST), encodings and parameter shapes (id[]=, id=1e3), and record a negative only when it still refuses',
     tags: ['access control', 'IDOR', 'BOLA', 'BFLA'],
   },
   'builtin:sec-audit-18': {
@@ -131,7 +131,7 @@ export const SEC_AUDIT_EN: Record<string, CardI18n> = {
   },
   'builtin:sec-audit-25': {
     title: 'Injection surface inventory',
-    text: 'Injection surface inventory: SQL/NoSQL (object operators like $gt), OS command, SSTI and expression injection, LDAP, XPath, CRLF response splitting, log injection, CSV injection (formula), SSI, ORM field concatenation, and second-order injection (stored safely, then read back and concatenated into a query) — mark parameterization, allowlists and escaping per site',
+    text: 'Injection surface inventory: SQL/NoSQL ($gt bypass), OS command, SSTI, LDAP, XPath, CRLF, log injection, CSV formula, SSI, ORM field concatenation, second-order injection (stored then re-concatenated); per site decide whether input reaches an interpreter — if it does, log a candidate and send a minimal probe (\', ", {{7*7}}, ;id), then confirm via reflection, error or time delay',
     tags: ['injection', 'CSV injection', 'second-order'],
   },
   'builtin:sec-audit-26': {
@@ -141,7 +141,7 @@ export const SEC_AUDIT_EN: Record<string, CardI18n> = {
   },
   'builtin:sec-audit-27': {
     title: 'Async pipeline audit',
-    text: 'Async pipeline audit (MQ/schedulers): can producers be spoofed or messages injected? consumer-side deserialization and schema validation, duplicate execution and idempotency via retries/dead-letter queues, scheduler concurrency and authorization',
+    text: 'Async pipeline audit (MQ/schedulers): can producers be spoofed or messages injected (publish directly from a custom client)? consumer-side deserialization and schema validation, duplicate execution from retries/dead-letter queues, scheduler concurrency and authorization; proof = your own message actually triggers the side effect (order/notification/charge) — merely reaching the broker proves nothing',
     tags: ['message queue', 'idempotency', 'async'],
   },
   'builtin:sec-audit-28': {
@@ -167,7 +167,7 @@ export const SEC_AUDIT_EN: Record<string, CardI18n> = {
   },
   'builtin:sec-audit-32': {
     title: 'Coverage follow-up on located surfaces',
-    text: 'Coverage follow-up only on surfaces you already located: for each defect you found, re-check dimension by dimension (injection/auth/session/authorization/crypto/config/dependencies/file upload/deserialization/business logic) whether a second path exists, and only expand if there is one; do not fill dimensions for their own sake',
+    text: 'Coverage follow-up only on surfaces you already located: for each located defect, walk the dimensions (injection/auth/session/authorization/crypto/config/dependencies/upload/deserialization/business logic) asking "can the same entry be hit again with another parameter, role or path"; a second path counts only if a changed request reproduces it independently — same-origin repetition does not; do not fill dimensions for their own sake',
     tags: ['coverage', 'gap filling', 'dimension re-check'],
   },
   'builtin:sec-audit-33': {
@@ -177,7 +177,7 @@ export const SEC_AUDIT_EN: Record<string, CardI18n> = {
   },
   'builtin:sec-audit-34': {
     title: 'Weak spots from anomalies',
-    text: 'Find weak implementations via anomalies: two implementations of the same feature (userId vs user_id naming), inconsistent error shapes (multiple backends), stale JS and source maps, prod vs staging behavior drift',
+    text: 'Find weak implementations via anomalies: two implementations of one feature (userId vs user_id side by side), inconsistent error shapes (multiple backends), stale JS and source maps, prod vs staging drift; turn each anomaly into a hypothesis "the old implementation was never fixed", send the same request down both paths and diff the responses — only the difference is a candidate',
     tags: ['anomaly', 'sourcemap', 'heuristics'],
   },
   'builtin:sec-audit-35': {
