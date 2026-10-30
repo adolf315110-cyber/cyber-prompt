@@ -12,19 +12,19 @@ export const SEC_AUDIT_EN: Record<string, CardI18n> = {
     tags: ['threat modeling', 'trust boundary', 'attack surface'],
   },
   'builtin:sec-audit-02': {
-    title: 'Show the taint path',
-    text: 'and explain each issue with a full source→sink taint path: for every hop give file:line and the data shape, plus the missing sanitizer (filtering/encoding/parameterization/allowlist)',
-    tags: ['taint analysis', 'sanitizer', 'data flow'],
+    title: 'Per-hop taint table',
+    text: 'and explain each issue with a per-hop source-to-sink taint table: for every hop write location (file:line) | data shape | the check that hop should apply | the check it actually applies | verdict; then name the hop still unverified and mark it [to verify] instead of claiming it as proven',
+    tags: ['taint analysis', 'sanitizer', 'per-hop table'],
   },
   'builtin:sec-audit-03': {
-    title: 'Audit report structure',
-    text: 'Output structure: first a risk summary table (ID/severity Critical→Info/file:line/one-line impact), then per-item detail — CWE ID, trigger conditions, minimal PoC, fix diff and regression check',
-    tags: ['report structure', 'CWE', 'PoC'],
+    title: 'Renderer injection and privileged surface',
+    text: 'Renderer injection and privileged surface: for every sink - dangerouslySetInnerHTML, innerHTML, eval - mark whether its data source can be controlled externally; the contextBridge surface of the renderer holding that sink sets the impact, since reaching local IPC is equivalent to RCE; when an unsanitized third-party response lands in the DOM, you must add the missing hop "who controls that response" before it can be rated',
+    tags: ['DSI', 'contextBridge', 'Electron'],
   },
   'builtin:sec-audit-04': {
     title: 'Language-specific dangerous patterns',
-    text: '{language} dangerous-pattern review: reflection and dynamic invocation, deserialization entry points (readObject/unserialize, JSON polymorphism, YAML), expression injection (SpEL/OGNL/MVEL) and SSTI, unsafe memory ops (UAF/OOB) — state exploitability preconditions for each',
-    tags: ['dangerous patterns', 'SSTI', 'deserialization'],
+    text: '{language} dangerous-pattern review: reflection and dynamic invocation, deserialization entry points (readObject/unserialize, JSON polymorphism, YAML), expression injection (SpEL/OGNL/MVEL) and SSTI, unsafe memory ops (UAF/OOB); catastrophic regex backtracking counts as exploitable only when all three hold - nested quantifier, attacker-controlled input, no length limit',
+    tags: ['dangerous patterns', 'SSTI', 'ReDoS'],
     vars: { 语言: { name: 'language', default: 'Java' } },
   },
   'builtin:sec-audit-05': {
@@ -53,9 +53,9 @@ export const SEC_AUDIT_EN: Record<string, CardI18n> = {
     tags: ['minimal repro', 'PoC'],
   },
   'builtin:sec-audit-10': {
-    title: 'Sort by risk',
-    text: 'Sorting rule: rank by reachability × impact scope × exploitation complexity × required privileges (CVSS-style); unauthenticated RCE and full data read/write first, then authenticated BOLA and injection, hardening items last',
-    tags: ['risk ranking', 'CVSS', 'severity'],
+    title: 'Attacker model and reachability closure',
+    text: 'Attacker model and reachability closure: for every finding write down who -> from where -> against whom, then check link by link that the entry point is reachable (exposed surface, channel registration, preload exposure, call site), that the preconditions can be met, and that the impact lands on someone else; if any link fails it is not a vulnerability, it only goes into the to-verify and negative-conclusion lists',
+    tags: ['reachability', 'attacker model', 'closure'],
   },
   'builtin:sec-audit-11': {
     title: 'Static first, then dynamic',
@@ -120,9 +120,9 @@ export const SEC_AUDIT_EN: Record<string, CardI18n> = {
     vars: { 框架: { name: 'framework', default: 'Spring' } },
   },
   'builtin:sec-audit-23': {
-    title: 'Boundaries and edge cases first',
-    text: 'Test boundaries and abnormal paths first: null/None, oversized input, negative and zero values, Unicode and encoding differences, timeouts and retries, concurrent ordering — missing validation concentrates there',
-    tags: ['boundary values', 'edge paths'],
+    title: 'Type and prototype boundaries',
+    text: 'Check the two boundaries of type and prototype first: Type Juggling — under loose comparison "0e123"=="0e456" and "1abc"==1 both evaluate equal; Prototype Pollution — __proto__/constructor.prototype poisoning flips an isAdmin check; give the triggering input and the actual decision after poisoning for both',
+    tags: ['Type Juggling', 'prototype pollution', 'boundaries'],
   },
   'builtin:sec-audit-24': {
     title: 'Chain findings together',
@@ -131,13 +131,13 @@ export const SEC_AUDIT_EN: Record<string, CardI18n> = {
   },
   'builtin:sec-audit-25': {
     title: 'Injection surface inventory',
-    text: 'Injection surface inventory: SQL/NoSQL, OS command, SSTI and expression injection, LDAP, XPath, CRLF response splitting, log injection — locate every concatenation point and note the parameterization, allowlists and escaping in place',
-    tags: ['injection', 'SSTI', 'CRLF'],
+    text: 'Injection surface inventory: SQL/NoSQL (object operators like $gt), OS command, SSTI and expression injection, LDAP, XPath, CRLF response splitting, log injection, CSV injection (formula), SSI, ORM field concatenation, and second-order injection (stored safely, then read back and concatenated into a query) — mark parameterization, allowlists and escaping per site',
+    tags: ['injection', 'CSV injection', 'second-order'],
   },
   'builtin:sec-audit-26': {
-    title: 'State audit limitations',
-    text: 'and state the audit limitations: uncovered modules and test gaps, unverified assumptions, reachability that needs DAST confirmation, and new vulnerability classes possibly missed due to the knowledge cutoff',
-    tags: ['limitations', 'DAST'],
+    title: 'Baseline AI guardrails',
+    text: 'and baseline AI guardrails against the real attack surface: a single-shot prompt-injection success rate means nothing (about 78.6% breach over 200 attempts at roughly 50% over 10), published prompt-level defenses can be bypassed by adaptive attacks at over 90%, so guardrails and approvals must live outside the model — not in the prompt alone',
+    tags: ['ASR', 'guardrails', 'LLM'],
   },
   'builtin:sec-audit-27': {
     title: 'Async pipeline audit',
@@ -151,9 +151,9 @@ export const SEC_AUDIT_EN: Record<string, CardI18n> = {
     vars: { 数据格式: { name: 'dataFormat', default: 'XML' } },
   },
   'builtin:sec-audit-29': {
-    title: 'Check against baselines',
-    text: 'Against OWASP ASVS / WSTG / CWE Top 25 mark each item Pass / Fail / N/A; for every Fail give file:line, evidence and the fix, covering ASVS L1 controls first',
-    tags: ['ASVS', 'WSTG', 'baseline'],
+    title: 'Check against three baselines',
+    text: 'Mark each item Pass / Fail / N/A against three baselines: STRIDE per trust boundary, CIS Benchmarks for configuration, OWASP ASVS and WSTG controls; a CVE already listed in CISA KEV is Critical outright, and anything not covered is marked NOT ASSESSED rather than silently passing',
+    tags: ['STRIDE', 'CIS', 'ASVS'],
   },
   'builtin:sec-audit-30': {
     title: 'Open redirect and Host header',
@@ -166,14 +166,14 @@ export const SEC_AUDIT_EN: Record<string, CardI18n> = {
     tags: ['XSS', 'DOM XSS', 'CWE-79'],
   },
   'builtin:sec-audit-32': {
-    title: 'Coverage self-check, 10 dimensions',
-    text: 'Coverage self-check across 10 dimensions: injection/auth/session/authorization/crypto/config/dependencies/file upload/deserialization/business logic; list and fill uncovered items before reporting; below 60% breadth, do not go deep',
-    tags: ['coverage', 'self-check'],
+    title: 'Coverage follow-up on located surfaces',
+    text: 'Coverage follow-up only on surfaces you already located: for each defect you found, re-check dimension by dimension (injection/auth/session/authorization/crypto/config/dependencies/file upload/deserialization/business logic) whether a second path exists, and only expand if there is one; do not fill dimensions for their own sake',
+    tags: ['coverage', 'gap filling', 'dimension re-check'],
   },
   'builtin:sec-audit-33': {
-    title: 'Avoid tunnel vision',
-    text: 'Avoid tunnel vision: no single module over 30% of effort; merge ≥3 files sharing a pattern into one finding with a comparison table; after each module ask "which attack surface is still untouched"',
-    tags: ['breadth first', 'pace'],
+    title: 'Mobile checks against MASVS',
+    text: 'Mobile checks against the six OWASP MASVS categories: STORAGE (tokens and PII stored in plaintext), CRYPTO (keys not in the keystore, weak algorithms), AUTH (biometric bypass, auth enforced only client-side), NETWORK (no TLS, no pinning), PLATFORM (exported components, URL schemes, WebView bridges), CODE (debuggable build, keys extractable)',
+    tags: ['MASVS', 'mobile', 'MASVS-CODE'],
   },
   'builtin:sec-audit-34': {
     title: 'Weak spots from anomalies',
@@ -186,9 +186,9 @@ export const SEC_AUDIT_EN: Record<string, CardI18n> = {
     tags: ['LLM', 'Prompt Injection', 'LLM Top 10'],
   },
   'builtin:sec-audit-36': {
-    title: 'Cache and shared state',
-    text: 'Shared-state and cache audit: cache keys must include the user dimension (no cross-user bleed), untrusted cache-key input headers (X-Forwarded-Host/Host), per-object cache authorization, distributed locks and idempotency keys in critical sections',
-    tags: ['cache', 'access control', 'idempotency key'],
+    title: 'Multi-tenant isolation',
+    text: 'Multi-tenant isolation audit: every query must carry tenant scoping — one missing filter is a cross-tenant IDOR; cache keys, vector-store retrieval, session memory and export jobs partition by tenant too; then check whether untrusted input headers (X-Forwarded-Host/Host) can poison a cache key',
+    tags: ['multi-tenant', 'tenant', 'IDOR'],
   },
   'builtin:sec-audit-37': {
     title: 'Logging and monitoring audit',

@@ -1,4 +1,4 @@
-# 术语来源调研（2026-10-29 · 第三轮）
+# 术语来源调研（2026-10-29 · 第三 + 第四轮）
 
 > 目的：继续给卡库做「术语密度强化」——用户反馈「还需要增加点专业术语」，要求再搜集 GitHub。
 > 配套：写法标准见 [2026-10-19-security-prompt-research.md](./2026-10-19-security-prompt-research.md)；术语来源沿革见 [2026-10-19-terminology-sources.md](./2026-10-19-terminology-sources.md)。
@@ -64,3 +64,54 @@
 - `npm run test`：150 张定额、40/40/25/25/20、双类各 40 张、标题 ≤24、文本 ≤160、tags 2-4、去标点后标题与文本唯一、`{变量}` 登记齐全、英译层全覆盖且 token 一一对应 —— 全绿
 - `npx tsc --noEmit` 与 `npm run build` 通过
 - 长度自检脚本（临时）：150 张中文标题 ≤24、正文 ≤160；150 张英文标题 ≤64、正文 ≤480
+
+---
+
+## 五、第四轮（同日续做）：清候选池
+
+第三轮留下的候选池继续消化，来源不变（仍以第一、二轮的 6 个 + 第三轮的 4 个仓库为底），再替换 **14 张**卡。
+
+### 安全审计（7 张）
+
+| 卡 | 原主题 | 新主题 | 新增术语 |
+|---|---|---|---|
+| 04 | 语言特有危险模式 | 危险模式（加 ReDoS） | 正则灾难性回溯（ReDoS） |
+| 23 | 边界与异常优先 | 类型与原型两条边界 | Type Juggling（PHP 松散比较 `"0e123"=="0e456"`、`"1abc"==1`）、Prototype Pollution（`__proto__`/`constructor.prototype` 污染翻转 isAdmin） |
+| 25 | 注入面清点 | 注入面清点（补家族） | CSV 注入（公式）、SSI、ORM 字段直拼、NoSQL 对象操作符 `$gt`、二阶注入（先存后取再拼进查询） |
+| 26 | 说明审计局限 | AI 护栏判定基线 | ASR 基线（200 次尝试约 78.6% 突破、10 次约 50%）、提示级防御面对自适应攻击绕过率可超 90% → 护栏与审批必须在模型之外 |
+| 29 | 对照安全基线 | 对照三套基线 | STRIDE 逐信任边界、CIS Benchmarks 配置基线、CISA KEV 收录即 Critical、未覆盖项标 NOT ASSESSED |
+| 33 | 反隧道视野 | 移动端 MASVS 核对 | MASVS 六项：STORAGE / CRYPTO / AUTH / NETWORK / PLATFORM / CODE |
+| 36 | 缓存与共享状态 | 多租户隔离 | tenant scoping 缺失 = 跨租户 IDOR、缓存键/向量库/会话记忆/导出任务按租户分区 |
+
+### 渗透测试（5 张）
+
+| 卡 | 原主题 | 新主题 | 新增术语 |
+|---|---|---|---|
+| 06 | 复杂功能优先 | 账号接管专项 | Account Takeover（重置密码 Host 头投毒、令牌可预测、邮箱/手机号变更、OAuth 绑定解绑劫持） |
+| 14 | 点击劫持与客户端面 | 客户端面 | DOM Clobbering（id/name 覆盖全局对象伪造权限）、postMessage origin 校验、WebSocket 握手鉴权 |
+| 31 | OAuth/OIDC 测试点 | 单点登录测试点 | OIDC 断言校验、SAML 签名剥离与签名包裹（XSW）、RelayState 与 post_logout_redirect_uri 开放重定向、IdP 元数据被替换 |
+| 32 | Mass Assignment | Mass Assignment 与过量数据暴露 | OWASP API3 BOPLA、写侧越权字段、读侧多返字段、字段级鉴权 |
+| 33 | GraphQL 专项 | GraphQL 专项 | field-level authorization（字段级鉴权）、resolver 内漏检的查询参数 |
+
+### 通用与编程（2 张）
+
+| 卡 | 原主题 | 新主题 | 新增术语 |
+|---|---|---|---|
+| general-10 | 领域锚定 | 领域锚定（AI 分支） | MITRE ATLAS 战术分层、NIST AI 100-2 E2025 三分类、CSA MAESTRO 七层 |
+| coding-14 | 技术栈约束 | 技术栈约束（依赖分支） | lockfile 冻结安装、install scripts 以开发者与 runner 权限执行、dependency confusion |
+
+## 六、第四轮后仍缺的术语（下一轮）
+
+- Reverse Tabnabbing（`window.opener` 反向劫持）—— 因 160 字上限从 pentest-14 挤出
+- Unicode 归一化（NFC/NFKC）—— 与 sec-audit-38 的走私卡争长度
+- API2 Broken authentication 细项、API8 安全配置错配
+- OWASP Agentic Skills Top 10（AST01-AST10）：skill 注册表投毒、manifest 签名 ed25519、权限范围最小化
+- JWT `jku` / `x5u` 头注入（SAML 侧已落 `kid`/`jwk` 同类思路）
+- ORM Leak、Client-side Path Traversal
+
+## 七、术语覆盖实测
+
+对 66 个目标术语做大小写不敏感全量扫描（中文卡库 + 英译层），经多轮强化后覆盖 65/66；唯一未命中的是 Unicode 归一化 NFC/NFKC（已列入上一节）。
+
+本节第六节的候选池仍然有效，未被消耗。
+

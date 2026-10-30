@@ -14,7 +14,7 @@ export const OUTPUT_EN: Record<string, CardI18n> = {
   },
   'builtin:output-02': {
     title: 'Table format',
-    text: 'Render comparison information as a table (columns: issue, location, severity, impact, fix), followed by a conclusion of at most three lines',
+    text: 'Render comparison information as a table (columns: issue, CWE ID, location, severity Critical to Info, impact, fix suggestion with an applicable diff), followed by a conclusion of at most three lines',
     tags: ['table', 'structure'],
   },
   'builtin:output-03': {
@@ -80,7 +80,7 @@ export const OUTPUT_EN: Record<string, CardI18n> = {
   },
   'builtin:output-15': {
     title: 'Self-check before output',
-    text: 'Pre-output self-check: does every conclusion have evidence, are numbers verified, is formatting consistent, is the original question answered? Fix first, then output',
+    text: 'Pre-output self-check: does every conclusion have evidence, are numbers verified, is formatting consistent, is the original question answered? Fix first, then output; at the end list each of my constraints one by one and explain any unmet one',
     tags: ['self-check', 'quality'],
   },
   'builtin:output-16': {
@@ -90,7 +90,7 @@ export const OUTPUT_EN: Record<string, CardI18n> = {
   },
   'builtin:output-17': {
     title: 'Next-step suggestions',
-    text: 'End with a next-step list: 3-5 items in priority order, each with its expected benefit and cost magnitude',
+    text: 'End with a next-step list: 3-5 items in priority order, each with its expected benefit and cost magnitude; also give a retest plan (per finding: retest time, owner, acceptance criteria)',
     tags: ['suggestions', 'priority'],
   },
   'builtin:output-18': {
@@ -116,8 +116,8 @@ export const OUTPUT_EN: Record<string, CardI18n> = {
   },
   'builtin:output-22': {
     title: 'Confidence-tagged output',
-    text: 'Confidence-tagged output: tag each finding [verified]/[high confidence]/[to verify] and state the verification conditions — every taint hop checked, no effective filtering confirmed, a constructible input exists; note which step is missing',
-    tags: ['confidence', 'output'],
+    text: 'Confidence-tagged output: tag each finding [verified]/[high confidence]/[to verify] - [verified] must cite a concrete runtime observation (request, response, log or reproduction output); having only read the source caps it at [high confidence] and must not be rated; to-verify items go to an appendix, not the conclusions',
+    tags: ['confidence', 'output', 'runtime proof'],
   },
   'builtin:output-23': {
     title: 'Dedup and numbering',

@@ -53,8 +53,8 @@ export const GENERAL_EN: Record<string, CardI18n> = {
   },
   'builtin:general-10': {
     title: 'Anchor the domain',
-    text: 'This task is in the {domain} domain: prefer that domain\'s mature methods and terminology, and cite its recognized standards',
-    tags: ['domain', 'standards'],
+    text: 'This task is in the {domain} domain: prefer that domain mature methods and terminology, and cite its recognized standards; AI work is filed under MITRE ATLAS tactics, the NIST AI 100-2 E2025 classes and the seven layers of CSA MAESTRO, using OWASP LLM and Agentic Top 10 as the checklist',
+    tags: ['domain', 'ATLAS', 'NIST AI 100-2'],
     vars: { 领域: { name: 'domain', default: 'security auditing' } },
   },
   'builtin:general-11': {
@@ -88,9 +88,9 @@ export const GENERAL_EN: Record<string, CardI18n> = {
     tags: ['terminology', 'definitions'],
   },
   'builtin:general-17': {
-    title: 'Attach self-check results',
-    text: 'and attach a self-check at the end: verify every constraint I gave, one by one, and explain any unmet one',
-    tags: ['self-check', 'constraints'],
+    title: 'Reopening adjudicated items',
+    text: 'Deduplication discipline: an item already judged not-countable in the ledger or ruling file may be reopened only if you name the exact hop the earlier round refuted and give new evidence for that hop; otherwise it belongs in the negative conclusions and in the "what step is still missing" list, never in the new findings',
+    tags: ['dedup', 'reopen', 'discipline'],
   },
   'builtin:general-18': {
     title: 'Fallback plan',

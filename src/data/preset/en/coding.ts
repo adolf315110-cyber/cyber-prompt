@@ -77,8 +77,8 @@ export const CODING_EN: Record<string, CardI18n> = {
   },
   'builtin:coding-14': {
     title: 'Tech stack constraints',
-    text: 'Tech stack: {language} {version}; follow that version\'s idioms and introduce no unconfirmed third-party dependencies',
-    tags: ['tech stack', 'dependencies'],
+    text: 'Tech stack: {language} {version}; follow that version\'s idioms and introduce no unconfirmed third-party dependencies; pin a lockfile and freeze installs in CI, review each install script because it runs with developer and runner privileges, and keep internal package names unresolvable from the public registry (dependency confusion)',
+    tags: ['tech stack', 'dependencies', 'lockfile'],
     vars: {
       语言: { name: 'language', default: 'Python' },
       版本: { name: 'version', default: '3.12' },

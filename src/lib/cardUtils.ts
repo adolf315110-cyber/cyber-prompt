@@ -36,7 +36,7 @@ export function readVar(vars: Record<string, string>, key: string): string {
 
 /**
  * 合并一个变量默认值。保持 null 原型：
- * 对象展开会丢��� null 原型，之后变量名若是 constructor / __proto__ 就会读回原型链上的函数。
+ * 对象展开会丢掉 null 原型，之后变量名若是 constructor / __proto__ 就会读回原型链上的函数。
  */
 export function withVarDefault(vars: Record<string, string>, name: string, value: string): Record<string, string> {
   return Object.assign(Object.create(null) as Record<string, string>, vars, { [name]: value })

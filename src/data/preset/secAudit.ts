@@ -15,6 +15,7 @@ import type { Card } from '../../types'
  * - 后缀卡：以「并…」开头；段落卡：主题式开头（「越权矩阵：」等）或「输出要求：／约束：」
  * - 研究依据：docs/research/2026-10-19-security-prompt-research.md
  * - 术语强化（2026-10-19 第二轮）：来源见 docs/research/2026-10-19-terminology-sources.md
+ * - 术语强化（2026-10-29 第三轮）：来源见 docs/research/2026-10-29-terminology-round3.md
  */
 export const SEC_AUDIT_CARDS: Card[] = [
   {
@@ -30,31 +31,31 @@ export const SEC_AUDIT_CARDS: Card[] = [
   {
     id: 'builtin:sec-audit-02',
     category: 'sec-audit',
-    title: '给出污点传播路径',
-    text: '并用 source→sink 污点路径说明问题：每一跳标出文件:行号与数据形态，以及缺失的 sanitizer（过滤/编码/参数化/白名单）',
+    title: '逐跳污点跳表',
+    text: '并用 source→sink 污点跳表逐跳说明：每跳写位置(文件:行号)｜数据形态｜该跳应有的校验｜实际校验｜结论；末尾点名还缺哪一环没验证，缺环即标 [待验证]，不得当已实证',
     mode: 'suffix',
     vars: [],
-    tags: ['污点分析', 'sanitizer', '数据流'],
+    tags: ['污点分析', 'sanitizer', '逐跳跳表'],
     builtin: true,
   },
   {
     id: 'builtin:sec-audit-03',
     category: 'sec-audit',
-    title: '审计报告结构',
-    text: '输出结构：先给风险摘要表（编号/严重级 Critical→Info/文件:行号/一句话影响），再逐条展开——含 CWE 编号、触发条件、最小 PoC 复现、修复 diff 与回归验证',
+    title: '渲染进程注入与特权面',
+    text: '渲染进程注入与特权面：dangerouslySetInnerHTML、innerHTML、eval 等 sink 逐个标注数据来源能否被外部控制；sink 所在渲染进程的 contextBridge 暴露面决定影响，能调本地 IPC 即等价 RCE；远端第三方响应无净化直接进 DOM 须补「谁控制该响应」才可进入定级',
     mode: 'block',
     vars: [],
-    tags: ['报告结构', 'CWE', 'PoC'],
+    tags: ['DSI', 'contextBridge', 'Electron'],
     builtin: true,
   },
   {
     id: 'builtin:sec-audit-04',
     category: 'sec-audit',
     title: '语言特有危险模式',
-    text: '{语言} 危险模式排查：反射与动态调用、反序列化入口（readObject/unserialize、JSON 多态、YAML）、表达式注入（SpEL/OGNL/MVEL）与 SSTI、不安全内存操作（UAF/OOB），逐个给出可利用前提',
+    text: '{语言} 危险模式排查：反射与动态调用、反序列化入口（readObject/unserialize、JSON 多态、YAML）、表达式注入（SpEL/OGNL/MVEL）与 SSTI、不安全内存操作（UAF/OOB）；正则灾难性回溯须同时满足嵌套量词、输入可控、无长度上限，三条齐了才算可利用',
     mode: 'block',
     vars: [{ name: '语言', default: 'Java' }],
-    tags: ['危险模式', 'SSTI', '反序列化'],
+    tags: ['危险模式', 'SSTI', 'ReDoS'],
     builtin: true,
   },
   {
@@ -110,11 +111,11 @@ export const SEC_AUDIT_CARDS: Card[] = [
   {
     id: 'builtin:sec-audit-10',
     category: 'sec-audit',
-    title: '按危险度排序',
-    text: '排序规则：按「可达性 × 影响范围 × 利用复杂度 × 所需权限」定级；先列未认证可达的 RCE 与全量数据读写，再列需登录的越权（BOLA）与注入，最后给加固项',
+    title: '攻击者模型与可达性闭环',
+    text: '攻击者模型与可达性闭环：每条发现先写清「谁 → 从哪 → 打谁」，再逐环确认入口可达（暴露面、通道注册、preload 暴露、调用点）、前置条件可满足、危害落在他人对象上；任一环不成立就不算漏洞，只进待验证与负结论',
     mode: 'block',
     vars: [],
-    tags: ['危险度', 'CVSS', '排序'],
+    tags: ['可达性', '攻击者模型', '闭环'],
     builtin: true,
   },
   {
@@ -240,11 +241,11 @@ export const SEC_AUDIT_CARDS: Card[] = [
   {
     id: 'builtin:sec-audit-23',
     category: 'sec-audit',
-    title: '边界与异常优先',
-    text: '优先测边界与异常路径：空值、超长输入、负数与零、Unicode 与编码差异、超时重试、并发顺序变化——校验缺失基本集中在这些路径上',
+    title: '类型与原型两条边界',
+    text: '先查类型与原型两条边界：Type Juggling——PHP 松散比较下 "0e123"=="0e456" 与 "1abc"==1 都判等；原型链污染——__proto__/constructor.prototype 污染后 isAdmin 判定翻转；两种都要给触发输入与污染后的实际判定结果',
     mode: 'prefix',
     vars: [],
-    tags: ['边界值', '异常路径'],
+    tags: ['Type Juggling', '原型链污染', '边界值'],
     builtin: true,
   },
   {
@@ -261,20 +262,20 @@ export const SEC_AUDIT_CARDS: Card[] = [
     id: 'builtin:sec-audit-25',
     category: 'sec-audit',
     title: '注入面清点',
-    text: '注入面清点：SQL/NoSQL、OS 命令、SSTI 与表达式注入、LDAP、XPath、CRLF 响应拆分、日志注入逐点定位拼接位置，标注参数化、白名单与转义现状',
+    text: '注入面清点：SQL/NoSQL（对象操作符 $gt 绕过）、OS 命令、SSTI 与表达式注入、LDAP、XPath、CRLF 响应拆分、日志注入、CSV 公式注入、SSI、ORM 字段直拼、二阶注入（先存后取再拼进查询），逐点标注参数化、白名单与转义现状',
     mode: 'block',
     vars: [],
-    tags: ['注入', 'SSTI', 'CRLF'],
+    tags: ['注入', 'CSV 注入', '二阶注入'],
     builtin: true,
   },
   {
     id: 'builtin:sec-audit-26',
     category: 'sec-audit',
-    title: '说明审计局限',
-    text: '并声明审计局限：未覆盖模块与测试缺口、无法验证的假设前提、需动态测试（DAST）确认的可达性、可能因知识截止遗漏的新漏洞类型',
+    title: 'AI 护栏判定基线',
+    text: '并按真实攻击面给 AI 护栏定基线：单次提示注入成功率没有意义（同一目标 200 次尝试约 78.6% 突破、10 次约 50%）；已发表的提示级防御面对自适应攻击绕过率可超 90%，所以护栏与审批必须放在模型之外，不能只靠提示词',
     mode: 'suffix',
     vars: [],
-    tags: ['审计局限', 'DAST'],
+    tags: ['ASR', '护栏', 'LLM'],
     builtin: true,
   },
   {
@@ -300,11 +301,11 @@ export const SEC_AUDIT_CARDS: Card[] = [
   {
     id: 'builtin:sec-audit-29',
     category: 'sec-audit',
-    title: '对照安全基线',
-    text: '对照 OWASP ASVS / WSTG / CWE Top 25 逐项标注：Pass / Fail / N/A；Fail 项附文件:行号、证据与修法，优先覆盖 ASVS L1 控制项',
+    title: '对照三套安全基线',
+    text: '对照三套基线逐项标注 Pass / Fail / N/A：STRIDE 逐信任边界、CIS Benchmarks 配置基线、OWASP ASVS 与 WSTG 控制项；已在 CISA KEV 收录的 CVE 直接判 Critical，未覆盖项标 NOT ASSESSED 而非默认通过',
     mode: 'prefix',
     vars: [],
-    tags: ['ASVS', 'WSTG', '基线'],
+    tags: ['STRIDE', 'CIS', 'ASVS'],
     builtin: true,
   },
   {
@@ -330,21 +331,21 @@ export const SEC_AUDIT_CARDS: Card[] = [
   {
     id: 'builtin:sec-audit-32',
     category: 'sec-audit',
-    title: '覆盖率自检十维',
-    text: '覆盖率自检十维：注入/认证/会话/授权/加密/配置/依赖/文件上传/反序列化/业务逻辑；未覆盖项列清单补漏后再出报告，广度不足六成不进入深挖',
+    title: '已定位面的覆盖补漏',
+    text: '覆盖补漏只对已定位的面：对你已定位的缺陷，按注入/认证/会话/授权/加密/配置/依赖/文件上传/反序列化/业务逻辑逐维反查是否还有第二条路径，有才扩写；不为铺满维度而铺维度',
     mode: 'block',
     vars: [],
-    tags: ['覆盖率', '自检'],
+    tags: ['覆盖', '补漏', '十维反查'],
     builtin: true,
   },
   {
     id: 'builtin:sec-audit-33',
     category: 'sec-audit',
-    title: '反隧道视野',
-    text: '防隧道视野：单一模块精力占比 ≤30%；同类文件 ≥3 个共享模式合并为 1 条发现并附对比表；每完成一个模块先问「还有哪些攻击面没碰过」',
+    title: '移动端 MASVS 核对',
+    text: '移动端按 MASVS 六项核对：STORAGE（令牌与 PII 明文落盘）、CRYPTO（密钥未进 keystore、算法弱）、AUTH（生物识别绕过、仅客户端鉴权）、NETWORK（无 TLS 与 pinning）、PLATFORM（导出组件、URL scheme、WebView）、CODE（可调试包、密钥可提取）',
     mode: 'block',
     vars: [],
-    tags: ['广度优先', '节奏'],
+    tags: ['MASVS', '移动端', 'MASVS-CODE'],
     builtin: true,
   },
   {
@@ -370,11 +371,11 @@ export const SEC_AUDIT_CARDS: Card[] = [
   {
     id: 'builtin:sec-audit-36',
     category: 'sec-audit',
-    title: '缓存与共享状态',
-    text: '共享状态与缓存审计：缓存键须含用户维度（防跨用户串数据）、不可信的缓存键输入头（X-Forwarded-Host/Host）、对象级缓存权限、临界区分布式锁与幂等键',
+    title: '多租户隔离',
+    text: '多租户隔离审计：每条查询都要带 tenant scoping，漏一个过滤就是跨租户 IDOR；缓存键、向量库检索、会话记忆与导出任务同样按租户分区；再核对不可信输入头（X-Forwarded-Host/Host）能否污染缓存键',
     mode: 'block',
     vars: [],
-    tags: ['缓存', '越权', '幂等键'],
+    tags: ['多租户', 'tenant', 'IDOR'],
     builtin: true,
   },
   {

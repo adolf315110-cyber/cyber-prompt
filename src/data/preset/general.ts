@@ -99,10 +99,10 @@ export const GENERAL_CARDS: Card[] = [
     id: 'builtin:general-10',
     category: 'general',
     title: '领域锚定',
-    text: '本任务属于 {领域} 领域，优先使用该领域成熟方法与术语，引用该领域公认标准',
+    text: '本任务属于 {领域} 领域，优先使用该领域成熟方法与术语，引用该领域公认标准；AI 任务按 MITRE ATLAS 战术分层、NIST AI 100-2 E2025 三分类与 CSA MAESTRO 七层归档，OWASP LLM 与 Agentic Top 10 作清单',
     mode: 'block',
     vars: [{ name: '领域', default: '安全审计' }],
-    tags: ['领域', '标准'],
+    tags: ['领域', 'ATLAS', 'NIST AI 100-2'],
     builtin: true,
   },
   {
@@ -168,11 +168,11 @@ export const GENERAL_CARDS: Card[] = [
   {
     id: 'builtin:general-17',
     category: 'general',
-    title: '附自检结果',
-    text: '并在结尾附自检结果：逐条核对是否满足我提出的全部约束，未满足的说明原因',
-    mode: 'suffix',
+    title: '重开已裁决条目',
+    text: '去重纪律：台账或裁定文件里已判「不计」的条目，只有指出前轮否证的是哪一环、并给出该环的新证据时才允许重开，否则只进负结论与「待补哪一步」，不得当作新发现上报',
+    mode: 'block',
     vars: [],
-    tags: ['自检', '约束'],
+    tags: ['去重', '重开', '纪律'],
     builtin: true,
   },
   {

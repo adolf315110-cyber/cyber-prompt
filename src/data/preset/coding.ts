@@ -142,13 +142,13 @@ export const CODING_CARDS: Card[] = [
     id: 'builtin:coding-14',
     category: 'coding',
     title: '技术栈约束',
-    text: '技术栈：{语言} {版本}；遵循该版本的语言惯用法，不引入未经确认的第三方依赖',
+    text: '技术栈：{语言} {版本}；遵循该版本的语言惯用法，不引入未经确认的第三方依赖；依赖要锁 lockfile 并在 CI 冻结安装，安装脚本（install scripts）以开发者与 runner 权限执行须逐个评估，内部包名不可从公开注册表解析（dependency confusion）',
     mode: 'block',
     vars: [
       { name: '语言', default: 'Python' },
       { name: '版本', default: '3.12' },
     ],
-    tags: ['技术栈', '依赖'],
+    tags: ['技术栈', '依赖', 'lockfile'],
     builtin: true,
   },
   {
