@@ -15,6 +15,7 @@ import {
   saveData,
   type StorageLike,
 } from '../lib/storage'
+import { USER_CARD_LIMITS } from '../lib/cardUtils'
 
 function fakeStorage(initial: Record<string, string> = {}) {
   const map = new Map(Object.entries(initial))
@@ -69,6 +70,50 @@ describe('loadData / saveData', () => {
   it('storage 不可用（null）时读写都不抛错', () => {
     expect(loadData(null)).toEqual(defaultData())
     expect(() => saveData(defaultData(), null)).not.toThrow()
+  })
+
+  it('迁移：旧版本焊在实例里的默认值被清空（老数据在英文界面也不该拼出中文）', () => {
+    // builtin:general-20 的中文层默认值是「中文」、英文层是「English」
+    const data = defaultData()
+    data.compose.slots.block = [{ instanceId: 'i1', cardId: 'builtin:general-20', vars: { 语言: '中文' }, enabled: true }]
+    const storage = fakeStorage({ [STORAGE_KEY]: JSON.stringify(data) })
+    const loaded = loadData(storage)
+    expect(loaded.compose.slots.block[0].vars).toEqual({ 语言: '' })
+  })
+
+  it('迁移：英文层默认值同样被清空（反向）', () => {
+    const data = defaultData()
+    data.compose.slots.block = [{ instanceId: 'i1', cardId: 'builtin:general-20', vars: { 语言: 'English' }, enabled: true }]
+    const storage = fakeStorage({ [STORAGE_KEY]: JSON.stringify(data) })
+    expect(loadData(storage).compose.slots.block[0].vars).toEqual({ 语言: '' })
+  })
+
+  it('迁移：用户自己填的值不动', () => {
+    const data = defaultData()
+    data.compose.slots.block = [{ instanceId: 'i1', cardId: 'builtin:general-20', vars: { 语言: 'Rust' }, enabled: true }]
+    const storage = fakeStorage({ [STORAGE_KEY]: JSON.stringify(data) })
+    expect(loadData(storage).compose.slots.block[0].vars).toEqual({ 语言: 'Rust' })
+  })
+
+  it('迁移：配方条目里焊死的默认值也被清空', () => {
+    const data = defaultData()
+    data.recipes = [
+      {
+        id: 'r1',
+        name: '配方',
+        baseSentence: '',
+        items: [{ cardId: 'builtin:general-20', vars: { 语言: '中文' }, enabled: true }],
+      },
+    ]
+    const storage = fakeStorage({ [STORAGE_KEY]: JSON.stringify(data) })
+    expect(loadData(storage).recipes[0].items[0].vars).toEqual({ 语言: '' })
+  })
+
+  it('迁移：非预置卡（用户卡）的值不动', () => {
+    const data = defaultData()
+    data.compose.slots.block = [{ instanceId: 'i1', cardId: 'user:x', vars: { 语言: '中文' }, enabled: true }]
+    const storage = fakeStorage({ [STORAGE_KEY]: JSON.stringify(data) })
+    expect(loadData(storage).compose.slots.block[0].vars).toEqual({ 语言: '中文' })
   })
 
   it('setItem 抛错（配额满）时静默降级', () => {
@@ -243,7 +288,9 @@ describe('parseImportFile（导入解析）', () => {
     expect(r.cards[0].builtin).toBe(false)
   })
 
-  it('导入卡不满足写作标准（标题超长 / 标签过多）→ 丢弃并计数', () => {    const longTitle = { ...valid.cards[0], id: 'user:long', title: 'x'.repeat(30) }
+  it('导入卡不满足写作标准（标题超长 / 标签过多）→ 丢弃并计数', () => {
+    // 超长标题的阈值取自 USER_CARD_LIMITS：写死数字会在限值调整后失效
+    const longTitle = { ...valid.cards[0], id: 'user:long', title: 'x'.repeat(USER_CARD_LIMITS.titleMax + 1) }
     const manyTags = { ...valid.cards[0], id: 'user:tags', tags: ['1', '2', '3', '4', '5'] }
     const r = parseImportFile(JSON.stringify({ ...valid, cards: [longTitle, manyTags] }))
     expect(r.cards).toEqual([])

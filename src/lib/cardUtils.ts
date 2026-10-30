@@ -21,11 +21,18 @@ export function extractVarNames(text: string): string[] {
   return names
 }
 
-/** 生成实例的初始变量表：默认值优先，无默认值为空串（键用 v.key 以兼容英译层） */
+/**
+ * 生成实例的初始变量表：全部写空串（键用 v.key 以兼容英译层）。
+ *
+ * 为什么不写默认值：预置卡有中英两层，若把「插入瞬间那一层」的默认值写进实例，
+ * 切到另一种语言后渲染期会优先用实例值（compose.ts 的 readVar(...) || v.default），
+ * 卡片自己的默认值永远不会生效 ⇒ 英文界面拼出中文 prompt。
+ * 默认值改由渲染期按「当前语言层的卡」回落；输入框用 placeholder 显示默认值。
+ */
 export function defaultVarsFor(card: Card): Record<string, string> {
   // 用 null 原型对象：变量名若是 __proto__，普通对象的赋值会走原型 setter 而写不进去
   const vars: Record<string, string> = Object.create(null) as Record<string, string>
-  for (const v of card.vars) vars[v.key ?? v.name] = v.default ?? ''
+  for (const v of card.vars) vars[v.key ?? v.name] = ''
   return vars
 }
 
@@ -52,10 +59,17 @@ export function hasUnresolvedVars(text: string): boolean {
 /** 用户卡校验问题码；文案由 i18n 层按码映射，逻辑层不碰文案 */
 export type CardIssue = 'titleRequired' | 'titleTooLong' | 'textRequired' | 'textTooLong' | 'tooManyTags' | 'textNotSingleLine'
 
-/** 自定义卡沿用预置卡的写作约束：标题 ≤24 字、正文 ≤160 字单行、标签 0-4 个 */
+/**
+ * 自定义卡的写作约束：标题 ≤64 字符、正文 ≤480 字符单行、标签 0-4 个。
+ *
+ * 限值取英译层的上限（src/__tests__/presetCardsEn.test.ts 强制英文标题 ≤64、正文 ≤480），
+ * 而不是中文口径：预置卡的中文层普遍短于英文层，而「复制为自定义」复制的是**界面所见**，
+ * 英文界面下复制出来的就是英文内容——限值若按中文口径（24/160），
+ * 英文界面下 150 张预置卡里有 97 张会当场报错且 Save 置灰。
+ */
 export const USER_CARD_LIMITS = {
-  titleMax: 24,
-  textMax: 160,
+  titleMax: 64,
+  textMax: 480,
   tagsMax: 4,
 } as const
 

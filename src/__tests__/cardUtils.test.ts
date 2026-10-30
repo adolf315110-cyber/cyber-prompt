@@ -30,8 +30,10 @@ describe('extractVarNames', () => {
 })
 
 describe('defaultVarsFor', () => {
-  it('有默认值用默认值，无默认值用空字符串', () => {
-    expect(defaultVarsFor(sample)).toEqual({ 语言: '中文', 篇幅: '' })
+  it('实例值一律写空串：默认值由渲染期按当前语言层的卡回落', () => {
+    // 写死默认值会让默认值固化在「插入瞬间那一语言层」上，
+    // 切到另一种语言后渲染期优先用实例值 ⇒ 英文界面拼出中文 prompt。
+    expect(defaultVarsFor(sample)).toEqual({ 语言: '', 篇幅: '' })
   })
   it('无变量卡返回空对象', () => {
     expect(defaultVarsFor({ ...sample, text: '无变量', vars: [] })).toEqual({})

@@ -10,6 +10,8 @@ import {
   type RecipeItem,
   type SlotItem,
 } from '../types'
+import { PRESET_CARDS } from '../data/presetCards'
+import { EN_CARDS } from '../data/preset/en'
 import { toSingleLine, validateCard, varsFromText } from './cardUtils'
 
 export const STORAGE_KEY = 'prompt-blocks:v1'
@@ -108,6 +110,82 @@ export function lastLoadCorrupted(): boolean {
   return loadWasCorrupt
 }
 
+/**
+ * 预置卡 id → 变量名 → 该变量在中文层 / 英文层各自的默认值。
+ *
+ * 背景：旧版本插入卡片时，把「插入那一刻语言层」的默认值写进了实例变量表；
+ * 渲染时实例值优先（compose.ts 的 readVar(...) || v.default），
+ * 于是切到另一种语言后默认值不会变 ⇒ 英文界面拼出中文。
+ * 现在插入时只写空串（cardUtils.defaultVarsFor），但**已经存下来的旧数据**
+ * 里仍带着被焊死的默认值，必须迁移一次。
+ */
+const PRESET_VAR_DEFAULTS: Map<string, Map<string, Set<string>>> = (() => {
+  const map = new Map<string, Map<string, Set<string>>>()
+  for (const card of PRESET_CARDS) {
+    const byVar = new Map<string, Set<string>>()
+    for (const v of card.vars) {
+      const set = new Set<string>()
+      if (v.default) set.add(v.default)
+      // 英译层以「原（中文）变量名」为键
+      const en = EN_CARDS[card.id]?.vars?.[v.name]
+      if (en?.default) set.add(en.default)
+      if (set.size > 0) byVar.set(v.name, set)
+    }
+    map.set(card.id, byVar)
+  }
+  return map
+})()
+
+/**
+ * 把实例变量表里「恰好等于该卡某层默认值」的值置空（视为未填）。
+ * 置空前后中文界面渲染结果完全一致（回落回同一个默认值），
+ * 英文界面则恢复成英文默认值；用户自己填的其它值一律不动。
+ */
+function clearFrozenDefaults(cardId: string, vars: Record<string, string>): Record<string, string> {
+  const byVar = PRESET_VAR_DEFAULTS.get(cardId)
+  if (!byVar) return vars
+  let changed = false
+  // null 原型：变量名可能是 constructor / __proto__
+  const out = Object.assign(Object.create(null) as Record<string, string>, vars)
+  for (const [name, defaults] of byVar) {
+    if (!Object.prototype.hasOwnProperty.call(out, name)) continue
+    const value = out[name]
+    if (typeof value === 'string' && value !== '' && defaults.has(value)) {
+      out[name] = ''
+      changed = true
+    }
+  }
+  return changed ? out : vars
+}
+
+/** 迁移一批拼装区实例 */
+function migrateSlotItems(items: SlotItem[]): SlotItem[] {
+  return items.map((it) => {
+    const vars = clearFrozenDefaults(it.cardId, it.vars)
+    return vars === it.vars ? it : { ...it, vars }
+  })
+}
+
+/** 迁移一批配方条目 */
+function migrateRecipeItems(items: RecipeItem[]): RecipeItem[] {
+  return items.map((it) => {
+    const vars = clearFrozenDefaults(it.cardId, it.vars)
+    return vars === it.vars ? it : { ...it, vars }
+  })
+}
+
+/** 迁移一份拼装区状态 */
+function migrateComposeState(compose: ComposeState): ComposeState {
+  return {
+    ...compose,
+    slots: {
+      prefix: migrateSlotItems(compose.slots.prefix),
+      suffix: migrateSlotItems(compose.slots.suffix),
+      block: migrateSlotItems(compose.slots.block),
+    },
+  }
+}
+
 /** 数据损坏/版本不符：把原始内容另存一份，再回退默认值 */
 function fallbackWithBackup(raw: string, storage: StorageLike): PersistedData {
   loadWasCorrupt = true
@@ -139,7 +217,9 @@ export function loadData(storage: StorageLike | null = localStorageSafe()): Pers
   if (!isPersistedData(parsed)) {
     return fallbackWithBackup(raw, storage)
   }
-  return parsed
+  // 迁移：清掉旧版本焊死的默认值（否则老数据在英文界面仍会拼出中文）
+  const data = parsed
+  return { ...data, compose: migrateComposeState(data.compose), recipes: data.recipes.map((r) => ({ ...r, items: migrateRecipeItems(r.items) })) }
 }
 
 /** 写入本地数据；返回是否成功（配额满/隐私模式会失败，UI 需据此提示） */
@@ -284,8 +364,9 @@ export function parseImportFile(text: string): ParsedImport {
   return {
     ok: true,
     cards,
-    recipes,
-    compose: isComposeState(file.compose) ? file.compose : null,
+    // 导入的旧文件里也可能带着被焊死的默认值，一并迁移
+    recipes: recipes.map((r) => ({ ...r, items: migrateRecipeItems(r.items) })),
+    compose: isComposeState(file.compose) ? migrateComposeState(file.compose) : null,
     invalid,
   }
 }

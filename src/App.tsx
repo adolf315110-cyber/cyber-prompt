@@ -275,6 +275,9 @@ export default function App() {
   }
 
   const handleClearData = () => {
+    // 先关掉数据管理弹窗：两个弹窗的遮罩同为 z-index:100，
+    // 不关的话确认框会被数据管理弹窗盖住，「确定」按钮点不到。
+    setDataDialogOpen(false)
     setConfirm({
       title: ui.clearData,
       message: ui.confirmClear,
@@ -371,6 +374,18 @@ export default function App() {
         />
       )}
 
+      {dataDialogOpen && (
+        <DataDialog
+          onExport={handleExport}
+          onImport={handleImport}
+          onClear={handleClearData}
+          onClose={() => setDataDialogOpen(false)}
+          ui={ui}
+        />
+      )}
+
+      {/* 确认框渲染在数据管理弹窗之后：同 z-index 下后渲染者在上层，
+          保证确认框永远盖在最上面、不会被其他弹窗挡住 */}
       {confirm && (
         <ConfirmDialog
           title={confirm.title}
@@ -384,16 +399,6 @@ export default function App() {
             setConfirm(null)
           }}
           onCancel={() => setConfirm(null)}
-        />
-      )}
-
-      {dataDialogOpen && (
-        <DataDialog
-          onExport={handleExport}
-          onImport={handleImport}
-          onClear={handleClearData}
-          onClose={() => setDataDialogOpen(false)}
-          ui={ui}
         />
       )}
 

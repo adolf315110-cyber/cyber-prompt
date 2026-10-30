@@ -31,7 +31,7 @@ describe('validateCard（用户自定义卡校验）', () => {
     expect(validateCard(card({ title: 'x'.repeat(USER_CARD_LIMITS.titleMax + 1) }))).toContain('titleTooLong')
   })
 
-  it('标题刚好 24 字不算超长', () => {
+  it('标题刚好到上限不算超长', () => {
     expect(validateCard(card({ title: 'x'.repeat(USER_CARD_LIMITS.titleMax) }))).not.toContain('titleTooLong')
   })
 

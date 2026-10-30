@@ -1,8 +1,8 @@
 import { describe, expect, it } from 'vitest'
 import { EN_CARDS } from '../data/preset/en'
 import { PRESET_CARDS } from '../data/presetCards'
-import { extractVarNames } from '../lib/cardUtils'
-import { composePrompt } from '../lib/compose'
+import { defaultVarsFor, extractVarNames, validateCard } from '../lib/cardUtils'
+import { composePrompt, renderCardText } from '../lib/compose'
 import { localizeCard } from '../lib/localize'
 import type { SlotItem } from '../types'
 
@@ -96,6 +96,53 @@ describe('内置英译层（src/data/preset/en）', () => {
     const text = composePrompt({ baseSentence: 'Audit this code', slots, manualText: null }, cardsById, 'en')
     expect(text).not.toMatch(/[\u4e00-\u9fff]/)
     expect(text).not.toMatch(/Chinese/)
+  })
+
+  /**
+   * 回归：上一条用例用的是「英译卡自己的默认值」，绕过了真实插入路径，
+   * 所以默认值被固化在插入瞬间那一语言层时它仍然会绿。
+   * 真实路径 = handleInsert → defaultVarsFor(当前语言层的卡) 建实例，
+   * 因此这里必须从 defaultVarsFor 出发。
+   */
+  it('回归：中文界面插入的卡，切到英文后拼出的文本不含中文', () => {
+    for (const card of PRESET_CARDS) {
+      if (card.vars.length === 0) continue
+      const inst = defaultVarsFor(card) // 中文界面插入
+      const text = renderCardText(localizeCard(card, 'en'), inst) // 切到英文后渲染
+      expect(text, card.id).not.toMatch(/[\u4e00-\u9fff]/)
+    }
+  })
+
+  it('回归：实例值不得固化成插入那一刻语言层的默认值（双向）', () => {
+    for (const card of PRESET_CARDS) {
+      if (card.vars.length === 0) continue
+      const instZh = defaultVarsFor(card)
+      for (const v of localizeCard(card, 'en').vars) {
+        const key = v.key ?? v.name
+        const actual = Object.prototype.hasOwnProperty.call(instZh, key) ? instZh[key] : ''
+        expect(actual, `${card.id}/${v.name}`).toBe('')
+      }
+      const instEn = defaultVarsFor(localizeCard(card, 'en'))
+      for (const v of card.vars) {
+        const key = v.key ?? v.name
+        const actual = Object.prototype.hasOwnProperty.call(instEn, key) ? instEn[key] : ''
+        expect(actual, `${card.id}/${v.name}`).toBe('')
+      }
+    }
+  })
+
+  it('回归：英文预置卡「复制为自定义」后必须能通过校验（否则 Save 恒置灰）', () => {
+    for (const card of PRESET_CARDS) {
+      const en = localizeCard(card, 'en')
+      // 与 App.tsx 的 handleCopyToCustom 同构：复制界面所见，去掉英译层的 key
+      const draft = {
+        title: en.title,
+        text: en.text,
+        tags: en.tags,
+        vars: en.vars.map((v) => ({ name: v.name, default: v.default })),
+      }
+      expect(validateCard(draft), card.id).toEqual([])
+    }
   })
 
   it('英文页的「输出语言」卡默认指向英文', () => {

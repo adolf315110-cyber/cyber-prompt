@@ -214,9 +214,9 @@ export const UI: Record<Lang, UiStrings> = {
     confirmDeleteCard: '删除这张卡片？已插入拼装区的该卡会显示为「卡片已删除」。',
     formErrors: {
       titleRequired: '标题不能为空',
-      titleTooLong: '标题不能超过 24 字',
+      titleTooLong: '标题不能超过 64 字符',
       textRequired: '正文不能为空',
-      textTooLong: '正文不能超过 160 字',
+      textTooLong: '正文不能超过 480 字符',
       tooManyTags: '标签最多 4 个',
       textNotSingleLine: '正文必须是单行',
     },
@@ -340,9 +340,9 @@ export const UI: Record<Lang, UiStrings> = {
     confirmDeleteCard: 'Delete this card? Cards already inserted into the composer will show as "(card deleted)".',
     formErrors: {
       titleRequired: 'Title cannot be empty',
-      titleTooLong: 'Title cannot exceed 24 characters',
+      titleTooLong: 'Title cannot exceed 64 characters',
       textRequired: 'Text cannot be empty',
-      textTooLong: 'Text cannot exceed 160 characters',
+      textTooLong: 'Text cannot exceed 480 characters',
       tooManyTags: 'At most 4 tags',
       textNotSingleLine: 'Text must be a single line',
     },
