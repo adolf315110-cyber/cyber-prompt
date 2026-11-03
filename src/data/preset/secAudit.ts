@@ -102,7 +102,7 @@ export const SEC_AUDIT_CARDS: Card[] = [
     id: 'builtin:sec-audit-09',
     category: 'sec-audit',
     title: '给最小复现输入',
-    text: '并给最小 PoC：触发问题的输入或调用序列，含原始请求、前置状态、期望与实际结果对照，确保他人可独立复现',
+    text: '并给最小 PoC：触发问题的输入或调用序列，含原始请求、前置状态、期望与实际结果对照，确保他人可独立复现；PoC 必须针对这段代码而非通用示例，且绕过路径上每一道校验——绕不过的那道就是阻断点，如实写明并降级',
     mode: 'suffix',
     vars: [],
     tags: ['最小复现', 'PoC'],

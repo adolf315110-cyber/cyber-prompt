@@ -164,6 +164,43 @@ describe('中英跨层契约 · 本轮新增与增补的卡', () => {
   })
 })
 
+describe('判据契约 · 2026-11-03 落地（Vulnhuntr / PentestGPT）', () => {
+  it('sec-audit-09 PoC 三道要求：针对本段代码 / 绕过每道校验 / 阻断点降级', () => {
+    const t = zh('builtin:sec-audit-09').text
+    expect(t).toMatch(/针对这段代码/)
+    expect(t).toContain('绕过')
+    expect(t).toContain('阻断点')
+    const e = en('builtin:sec-audit-09').text
+    expect(e).toMatch(/rather than a generic example/i)
+    expect(e).toMatch(/bypass every check/i)
+    expect(e).toMatch(/blocker/i)
+  })
+
+  it('output-22 置信度与远程可达性硬绑定', () => {
+    expect(zh('builtin:output-22').text).toContain('远程输入')
+    expect(zh('builtin:output-22').text).toContain('[高置信]')
+    const e = en('builtin:output-22').text
+    expect(e).toMatch(/does not start from remote input/i)
+    expect(e).toMatch(/caps it at \[high confidence\]/i)
+  })
+
+  it('output-04 只归纳不下结论 + 原样保留字段名与值', () => {
+    expect(zh('builtin:output-04').text).toContain('只归纳')
+    expect(zh('builtin:output-04').text).toMatch(/字段名与值/)
+    const e = en('builtin:output-04').text
+    expect(e).toMatch(/summarize only/i)
+    expect(e).toMatch(/verbatim/i)
+  })
+
+  it('output-24 初筛宽、定性延后', () => {
+    expect(zh('builtin:output-24').text).toContain('初筛')
+    expect(zh('builtin:output-24').text).toMatch(/定性|复现阶段/)
+    const e = en('builtin:output-24').text
+    expect(e).toMatch(/first pass/i)
+    expect(e).toMatch(/defer the verdict/i)
+  })
+})
+
 describe('卡库卫生', () => {
   // 不查 TODO/待补 一类词——卡正文里有正当用法（如要求输出标注未完成项与后续 TODO）。
   // 只查真正会破坏功能的：正文被删空或截断。

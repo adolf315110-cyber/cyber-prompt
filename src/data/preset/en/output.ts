@@ -25,7 +25,7 @@ export const OUTPUT_EN: Record<string, CardI18n> = {
   },
   'builtin:output-04': {
     title: 'Evidence and citations',
-    text: 'Every conclusion must cite evidence: file and line, command and output, or a link; label anything unverifiable explicitly as inference',
+    text: 'Every conclusion must cite evidence: file and line, command and output, or a link; label anything unverifiable as inference; when relaying tool output or pages, summarize only and never conclude — keep field names and values verbatim (port with service and version, parameter with its value), no speculation',
     tags: ['evidence', 'citations'],
   },
   'builtin:output-05': {
@@ -116,7 +116,7 @@ export const OUTPUT_EN: Record<string, CardI18n> = {
   },
   'builtin:output-22': {
     title: 'Confidence-tagged output',
-    text: 'Confidence-tagged output: tag each finding [verified]/[high confidence]/[to verify] - [verified] must cite a concrete runtime observation (request, response, log or reproduction output); having only read the source caps it at [high confidence] and must not be rated; to-verify items go to an appendix, not the conclusions',
+    text: 'Confidence-tagged output: tag each finding [verified]/[high confidence]/[to verify] — [verified] must cite a runtime observation (request, response, log, reproduction output); having only read the source caps it at [high confidence] and must not be rated; a PoC that does not start from remote input (needs local access, CLI args or an existing shell) caps it at [high confidence]; to-verify items go to an appendix',
     tags: ['confidence', 'output', 'runtime proof'],
   },
   'builtin:output-23': {
@@ -126,7 +126,7 @@ export const OUTPUT_EN: Record<string, CardI18n> = {
   },
   'builtin:output-24': {
     title: 'Report negative results',
-    text: 'Negative results belong in the report: list what was tested without findings (with methods) as coverage proof, and note what remains uncovered',
+    text: 'Negative results belong in the report: list what was tested without findings (with methods) as coverage proof, and note what remains uncovered; in the first pass record candidates generously (list anything remotely possible) and defer the verdict to the verification stage — never drop a lead early',
     tags: ['coverage', 'negative results'],
   },
   'builtin:output-25': {

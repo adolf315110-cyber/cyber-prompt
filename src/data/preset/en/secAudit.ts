@@ -49,7 +49,7 @@ export const SEC_AUDIT_EN: Record<string, CardI18n> = {
   },
   'builtin:sec-audit-09': {
     title: 'Provide a minimal PoC',
-    text: 'and give a minimal PoC: the input or call sequence that triggers it, with the raw request, preconditions and expected vs actual result — so anyone can reproduce it independently',
+    text: 'and give a minimal PoC: the input or call sequence that triggers it, with the raw request, preconditions and expected vs actual result — so anyone can reproduce it independently; the PoC must target this code rather than a generic example, and must bypass every check on the path — whichever one stops it is the blocker, state it honestly and downgrade',
     tags: ['minimal repro', 'PoC'],
   },
   'builtin:sec-audit-10': {
