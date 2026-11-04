@@ -1,7 +1,7 @@
 # 专业术语表（2026-11-04）
 
 > **口径**：本仓库只**收集专业术语**——标准编号、漏洞类别、攻击手法、协议/字段/工具名、框架与基线名称。
-> 不收录第三方提示词原文，不做 agent 提示词结构研究，不含任何实践记录、实验数据或实战反馈。
+> 不收录第三方提示词原文，不做 agent 提示词结构研究；内容只取自公开标准与类目索引。
 > **用途**：给 150 张预置卡做「术语密度强化」。卡文案里标准术语一律保留英文原名与编号，让提示词对 AI 呈现专业信号，也让界面搜索能按术语命中。
 > **沿革**：第一轮 `2026-10-19-terminology-sources.md`（6 个来源）、写法标准 `2026-10-19-security-prompt-research.md`、第三/四轮 `2026-10-29-terminology-round3.md`（4 个来源 + 候选池）。本文档是**汇总与收束**：把散在各轮记录里的术语按域重排成一张可查表，并消化此前「已收集但未落卡」的候选池。轮次文档保留原有沿革，不改动。
 > **保持不变**：卡库恒 150 张、分类配额 40/40/25/25/20、中文标题 ≤24 字 / 正文 ≤160 字、英文层 ≤64 / ≤480、tags 2-4、中英双层同步。
@@ -18,7 +18,7 @@
 | 2 | [OWASP API Security Top 10 (2023)](https://owasp.org/API-Security/) | 风险清单 | API1–API10 编号与官方命名 |
 | 3 | [OWASP MASVS / MASTG](https://mas.owasp.org/) | 移动标准 | STORAGE/CRYPTO/AUTH/NETWORK/PLATFORM/CODE 六域 |
 | 4 | [OWASP ASVS](https://owasp.org/www-project-application-security-verification-standard/) | 验证标准 | L1/L2/L3 控制项 |
-| 5 | [OWASP CheatSheetSeries](https://github.com/OWASP/CheatSheetSeries) | 实践索引 | 交叉核对术语拼写 |
+| 5 | [OWASP CheatSheetSeries](https://github.com/OWASP/CheatSheetSeries) | 速查表索引 | 交叉核对术语拼写 |
 | 6 | [OWASP LLM Top 10 (2025)](https://genai.owasp.org/llm-top-10/) | 风险清单 | LLM01–LLM10 |
 | 7 | [OWASP Agentic Top 10 (2026)](https://genai.owasp.org/) | 风险清单 | ASI01–ASI10；同源 Agentic Skills Top 10（AST01–AST10） |
 | 8 | [MITRE CWE](https://cwe.mitre.org/) | 缺陷枚举 | CWE 编号与名称 |
@@ -257,5 +257,5 @@
 
 - 本仓库只收录**自己写的**术语整理与写法分析；第三方提示词原文一律不入库（`docs/research/agent-prompts/raw/` 已在 `.gitignore` 内，仅本地留存）。
 - 术语整理不涉及提示词结构、任务树、输出分段、置信度模板等设计研究；那些属于另一类工作，不在本表范围内。
-- 不含任何真实目标、实践提升记录、实验数据、消融结论或台账。
+- 内容只取自公开标准与类目索引，不涉及任何具体目标或本地工作产物。
 - 验证方式：`npm run test`（150 张定额、长度与唯一性、tags、变量登记、英译层覆盖与无中文、判据契约）、`npx tsc --noEmit`、`npm run build`。
