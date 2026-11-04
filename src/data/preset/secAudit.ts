@@ -322,10 +322,10 @@ export const SEC_AUDIT_CARDS: Card[] = [
     id: 'builtin:sec-audit-31',
     category: 'sec-audit',
     title: 'XSS 三型专项',
-    text: 'XSS 三型专项（CWE-79）：反射型看参数回显、存储型看落库复读、DOM 型看 location.hash 与 innerHTML 拼接；按输出上下文核对编码——HTML 转义挡不住 href/src 里的 javascript: 协议，须用 scheme 白名单',
+    text: 'XSS 专项（CWE-79）：反射看参数回显、存储看落库复读、DOM 看 location.hash/innerHTML；HTML 转义挡不住 javascript: 协议，须用 scheme 白名单；DOM sink 枚举 eval/document.write，查 CSS 注入与 localStorage 令牌',
     mode: 'block',
     vars: [],
-    tags: ['XSS', 'DOM XSS', 'CWE-79'],
+    tags: ['XSS', 'DOM XSS', 'CWE-79', 'CSS 注入'],
     builtin: true,
   },
   {

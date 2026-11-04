@@ -65,7 +65,7 @@
 3. 到 `src/data/preset/en/` 对应文件补同 id 的英译（`title` / `text` / `tags`；带变量的卡在 `vars` 里给「原变量名 → 英文变量名 + 默认值」映射，正文变量写成英文 token，如 `{language}`）
 4. 运行 `npm run test`：中文卡与英译层的唯一性 / 字段 / 变量登记会自动校验（缺英译、字段超长、token 没登记都会失败）
 
-提示：卡片要写「手法型」指令——动作 + 对象 + 判定标准（怎么算命中、怎么排除假阴性），真实载荷/字段/工具名优先，能量化就量化，标准术语保留英文原名（BOLA、TOCTOU、gadget chain 等）。写法标准与调研依据见 `docs/research/2026-10-19-security-prompt-research.md`，术语来源见 `docs/research/2026-10-19-terminology-sources.md`。
+提示：卡片要写「手法型」指令——动作 + 对象 + 判定标准（怎么算命中、怎么排除假阴性），真实载荷/字段/工具名优先，能量化就量化，标准术语保留英文原名（BOLA、TOCTOU、gadget chain 等）。写法标准见 `docs/research/2026-10-19-security-prompt-research.md`；专业术语总表见 `docs/research/2026-11-04-terminology-glossary.md`（只收集术语与编号，不含第三方提示词原文），各轮来源沿革见该文档第一节。
 
 ## 目录结构
 
@@ -74,7 +74,7 @@
 - `src/data/preset/en/`：内置英译层（键为卡片 id；`localizeCard` 在 en 界面合并，变量用 `key` 指回原名保证已填值不丢）
 - `src/components/`：三栏 UI（卡库 / 拼装区 / 预览）+ 弹窗、卡片编辑器、配方条、我的卡片列表、顶层错误边界
 - `docs/superpowers/`：设计文档与实现计划
-- `docs/research/`：卡片写法与术语来源调研笔记（GitHub 网安 prompt / 概念库借鉴；术语来源分三轮，见 `2026-10-29-terminology-round3.md`）
+- `docs/research/`：卡片写法标准与专业术语调研笔记。术语按轮次从公开标准与类目索引中收集，按域汇总成总表（见 `2026-11-04-terminology-glossary.md`）；仓库内只收录自己写的术语整理，不收录第三方提示词原文
 
 ## 注意事项
 

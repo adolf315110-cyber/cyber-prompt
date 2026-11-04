@@ -162,8 +162,8 @@ export const SEC_AUDIT_EN: Record<string, CardI18n> = {
   },
   'builtin:sec-audit-31': {
     title: 'XSS: reflected, stored, DOM',
-    text: 'XSS deep dive (CWE-79): reflected — parameter echoed back; stored — persisted and re-rendered; DOM — location.hash and innerHTML concatenation. Encode per output context: HTML escaping does not stop a javascript: URL in href/src, so allowlist the scheme',
-    tags: ['XSS', 'DOM XSS', 'CWE-79'],
+    text: 'XSS deep dive (CWE-79): reflected — parameter echoed back; stored — persisted and re-rendered; DOM — location.hash/innerHTML. HTML escaping does not stop a javascript: URL, so allowlist the scheme; enumerate DOM sinks (eval/document.write) and check CSS injection plus plaintext tokens in localStorage',
+    tags: ['XSS', 'DOM XSS', 'CWE-79', 'CSS injection'],
   },
   'builtin:sec-audit-32': {
     title: 'Coverage follow-up on located surfaces',
