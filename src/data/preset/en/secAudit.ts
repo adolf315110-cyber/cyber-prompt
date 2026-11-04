@@ -13,8 +13,8 @@ export const SEC_AUDIT_EN: Record<string, CardI18n> = {
   },
   'builtin:sec-audit-02': {
     title: 'Per-hop taint table',
-    text: 'and explain each issue with a per-hop source-to-sink taint table: for every hop write location (file:line) | data shape | the check that hop should apply | the check it actually applies | verdict; then name the hop still unverified and mark it [to verify] instead of claiming it as proven',
-    tags: ['taint analysis', 'sanitizer', 'per-hop table'],
+    text: 'and give a per-hop source-to-sink taint table: each hop writes location (file:line) | data shape | expected vs actual check | verdict; name the unverified hop and mark it [to verify] instead of claiming it proven; on binaries call idautils.XrefsTo for an xrefblk_t, split calls from jumps via fl_CN/fl_CF, then decompile() for a cfunc_t and walk the ctree — when pseudocode and microcode disagree, trust the lower layer',
+    tags: ['taint analysis', 'sanitizer', 'per-hop table', 'IDA'],
   },
   'builtin:sec-audit-03': {
     title: 'Renderer injection and privileged surface',
@@ -34,8 +34,8 @@ export const SEC_AUDIT_EN: Record<string, CardI18n> = {
   },
   'builtin:sec-audit-06': {
     title: 'Rate exploitability',
-    text: 'and rate each suspicious point: directly exploitable / needs preconditions / theoretical — with the reasoning and the exact blocking check',
-    tags: ['exploitability', 'rating'],
+    text: 'and rate each suspicious point: directly exploitable / needs preconditions / theoretical — with the reasoning and the exact blocking check; static dataflow does not cross functions without isAdditionalTaintStep, and SimProcedure stubs plus path explosion lose paths — never report a tooling blind spot as a blocking check',
+    tags: ['exploitability', 'rating', 'SimProcedure'],
   },
   'builtin:sec-audit-07': {
     title: 'Audit AuthN and AuthZ separately',
@@ -59,8 +59,8 @@ export const SEC_AUDIT_EN: Record<string, CardI18n> = {
   },
   'builtin:sec-audit-11': {
     title: 'Static first, then dynamic',
-    text: 'Start with a SAST pass to locate suspects (dangerous functions, string concatenation, config switches, dependency manifests), then verify dynamic reachability and filter chains, showing evidence for each step; a static-only hit caps at [high confidence] and must not be rated, only a dynamic observation promotes it to [verified], and a dead dynamic path must state which link broke',
-    tags: ['SAST', 'dynamic verification'],
+    text: 'Start with a SAST pass for suspects (dangerous functions, string concatenation, config switches, dependency manifests), then verify dynamic reachability and filter chains with evidence for each step; static-only hits cap at [high confidence] and stay unrated, a dynamic observation promotes to [verified], a dead path must name the broken link; static: CodeQL DataFlow::PathNode from isSource to isSink; dynamic: ptrace(PTRACE_GETREGS) for registers, SIGTRAP for the hit',
+    tags: ['SAST', 'dynamic verification', 'CodeQL'],
   },
   'builtin:sec-audit-12': {
     title: 'Failure paths and fail-open controls',
@@ -100,8 +100,8 @@ export const SEC_AUDIT_EN: Record<string, CardI18n> = {
   },
   'builtin:sec-audit-19': {
     title: 'Only verifiable findings',
-    text: 'Verify before concluding: cited code must actually be read (file:line must be inside the file), never guess paths from "typical structure" or versions from framework folklore; label anything unverified as an assumption',
-    tags: ['evidence', 'anti-hallucination', 'assumptions'],
+    text: 'Verify before concluding: cited code must actually be read (file:line must be inside the file), never guess paths from "typical structure" or versions from framework folklore; label anything unverified as an assumption; decompiler pseudocode and a solver model are reconstructions, not source or runtime fact — on conflict, fall back to insn_t / mba_t microcode or a dynamic observation',
+    tags: ['evidence', 'anti-hallucination', 'assumptions', 'microcode'],
   },
   'builtin:sec-audit-20': {
     title: 'Regression verification',

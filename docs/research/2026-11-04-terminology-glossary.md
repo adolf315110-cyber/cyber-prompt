@@ -1,6 +1,6 @@
 # 专业术语表（2026-11-04）
 
-> **口径**：本仓库只**收集专业术语**——标准编号、漏洞类别、攻击手法、协议/字段/工具名、框架与基线名称。
+> **口径**：本仓库只**收集专业术语**——标准编号、漏洞类别、攻击手法、协议/字段/工具名、框架与基线名称，以及工具的操作指令与内部调用术语（对象、API、字段与机制，见 J 节）。
 > 不收录第三方提示词原文，不做 agent 提示词结构研究；内容只取自公开标准与类目索引。
 > **用途**：给 150 张预置卡做「术语密度强化」。卡文案里标准术语一律保留英文原名与编号，让提示词对 AI 呈现专业信号，也让界面搜索能按术语命中。
 > **沿革**：第一轮 `2026-10-19-terminology-sources.md`（6 个来源）、写法标准 `2026-10-19-security-prompt-research.md`、第三/四轮 `2026-10-29-terminology-round3.md`（4 个来源 + 候选池）。本文档是**汇总与收束**：把散在各轮记录里的术语按域重排成一张可查表，并消化此前「已收集但未落卡」的候选池。轮次文档保留原有沿革，不改动。
@@ -198,6 +198,173 @@
 
 `SAST` / `DAST`、`threat modeling` / `trust boundary` / `attack surface`、`source→sink` / `taint propagation` / `sanitizer`、`minimal PoC`、`regression test`、`attack surface mapping`、`Asset Discovery` / `CT logs` / `shadow asset`、`Burp project` / `HAR`、`Arjun`、`hashcat`、`interactsh` / `Collaborator` / `DNSLog`、`OOB`、`CSP` / `CORS` / `HSTS`（作为配置项名）、`SPF` / `DKIM` / `DMARC`、`wildcard DNS` / `CNAME dangling` / `subdomain takeover`、`Transfer-Encoding` / `chunked`、`gopher` / `dict` / `file` 协议链、`HTTP/2 multiplexing` / `single-packet multi-request`、`introspection` / `field suggestion` / `depth & complexity DoS` / `batch & alias`。
 
+### J. 工具调用术语（内部机制层）
+
+前九节收的是「叫什么」，J.8 收的是「怎么敲」。**J.1–J.7 收的是调用工具时真正要说清的东西：用哪个 API、返回什么对象、核对哪个字段或枚举、以及哪一层结果不可信。**
+
+只写快捷键或命令行，模型仍会把伪代码、反汇编与运行时观测混成一层证据；写清调用层，指令才能落到可核对的对象上。例如「用 IDA 看引用」是空的，`idautils.XrefsTo(ea) → xrefblk_t`，按 `.type` 的 `fl_CN`/`fl_CF` 区分普通调用与远调用、`dr_R`/`dr_W` 区分读写，才是可核对的指令。
+
+#### J.1 IDA / Hex-Rays：SDK 对象与反编译器层级
+
+| 调用 | 返回 / 对象 | 要核对什么 |
+|---|---|---|
+| `ida_bytes.get_wide_byte(ea)` / `patch_byte` | 原始字节 | IDA 是否把数据误标成代码 |
+| `ida_ua.decode_insn(insn, ea)` | `insn_t` / `op_t` | 操作数类型 `o_reg` / `o_mem` / `o_phrase` / `o_displ` / `o_imm` / `o_near` |
+| `ida_funcs.get_func(ea)` | `func_t` / `range_t` / `func_tail_t` | 函数边界、`chunked function` / `thunk` 误判 |
+| `idautils.XrefsTo(ea, flags)` / `XrefsFrom` | `xrefblk_t` | `.type`：`fl_CN` 普通调用 / `fl_CF` 远调用 / `fl_JN` / `fl_JF` 跳转 / `dr_R` 读 / `dr_W` 写 / `dr_O` 偏移 |
+| `ida_xref.add_cref` / `add_dref` | — | 补上间接调用造成的引用断链 |
+| `ida_hexrays.decompile(ea)` | `cfunc_t` / `hexrays_failure_t` | 失败原因；`sp-analysis failed`、`positive sp value` 时伪代码不可信 |
+| `cfunc_t.body` / `ctree` | `cinsn_t` / `cexpr_t` / `citem_t` / `cot_*` | 表达式树结构，别把 F5 的文本当结构 |
+| `ctree_visitor_t` / `ctree_parentee_t` | `visit_insn` / `visit_expr` | 遍历改写时保留父节点上下文 |
+| `cfunc_t.lvars` / `set_lvar_type` | `lvar_t` / `lvar_uservec_t` / `tinfo_t` | 类型传播结果，核对 `is_stk_var` / `is_reg_var` |
+| `gen_microcode()` | `mba_t` / `mblock_t` / `minsn_t` / `mop_t` | **下沉到微码**：伪代码与汇编冲突时以 microcode 为准 |
+| `mop_d` / `mop_S` / `mop_v` / `mop_a` / `mop_r` / `mop_n` | 微码操作数种类 | 区分寄存器、栈变量、全局、立即数 |
+| `MMA_*` 成熟度 / `vd` / `optblock_t` | 优化 pass 阶段 | 决定哪一层 IR 可比对 |
+| `ida_typeinf.apply_cdecl` / `apply_type` / `get_idati()` | `til` 类型库 / local types | 签名套用与结构体还原 |
+| `ida_struct` / `ida_enum` / `ida_frame.get_frame` | `struc_t` / `member_t` / 栈帧结构 | 栈变量偏移与参数区 |
+| `ida_netnode` | `netnode` / `supval` / `altval` / `blob` | IDB 内部元数据，不被 `get_bytes` 覆盖 |
+| `ida_segment.getseg` | `segment_t` / 段权限 | 段属性、`extern` 与 `HEADER` 段 |
+| `ida_name.set_name` / `get_name_ea_simple` / `ida_auto.plan_and_wait` | 命名与重分析队列 | `auto_mark_range` 后要等分析完成再取结果 |
+| `FLIRT` / `FLAIR` / `.pat` / `.sig` / `sigmake` / Lumina `pull_metadata` | 库函数识别 | 静态链接里 libc / CRT 的已知函数 |
+| `idaapi.plugin_t` / processor module `ph` / `ida_loader` | 扩展入口 | `IDC` 与 `IDAPython` 的能力边界 |
+| `switch_info_t` / jump table / `JUMPOUT` | 间接跳转恢复 | 跳转表未识别时伪代码会丢分支 |
+
+> 反编译证据层级：**原始字节 → `insn_t` 反汇编 → `mba_t` 微码 → `ctree` 伪代码**。下层与上层冲突时信下层，且要在结论里写明是哪一层给的证据。
+
+#### J.2 Ghidra / P-code / Sleigh
+
+- **Sleigh 规格**：`.slaspec` / `.sinc` / `token` / `field` / `constructor` / `disassembly action` / `semantic section` / `attach variables` / `space` 定义。
+- **P-code 对象**：`Varnode` / `PcodeOp` / `AddressSpace` / `unique space` / `constant space` / `register space` / `ram space`；`seqnum`（含 `time` 与 `order`）。
+- **常用 opcode**：`COPY` / `LOAD` / `STORE` / `BRANCH` / `CBRANCH` / `CALL` / `CALLIND` / `RETURN` / `INT_ADD` / `INT_SUB` / `INT_AND` / `INT_LESS` / `INT_ZEXT` / `INT_SEXT` / `BOOL_NEGATE` / `PIECE` / `SUBPIECE`。
+- **Decompiler API**：`DecompInterface.decompileFunction` → `DecompileResults.getHighFunction` → `HighFunction` / `HighVariable` / `HighSymbol` / `HighParam` / `VarnodeAST` / `PcodeOpAST` / `BlockGraph`；核对 `Varnode.isConstant` / `isRegister` / `isUnique` 与 `HighVariable.storage` / `dataType`。
+- **程序模型**：`Program` / `Listing` / `FunctionManager` / `SymbolTable` / `DataTypeManager` / `AddressFactory` / `MemoryBlock`。
+- **批处理与扩展**：`HeadlessAnalyzer` / `analyzeHeadless` / `GhidraScript` / `FlatProgramAPI` / `Analyzer` / `DataTypePropagator` / `DecompilerParameterId` / `analysis options` / `variable recovery`。
+
+#### J.3 调试器与运行时插桩机制
+
+- **`ptrace` 调用族**：`PTRACE_ATTACH` / `PTRACE_PEEKTEXT` / `PTRACE_POKETEXT` / `PTRACE_GETREGS` / `PTRACE_SETREGS` / `PTRACE_SINGLESTEP` / `PTRACE_SYSCALL` / `PTRACE_CONT` / `PTRACE_DETACH`；配套 `waitpid` / `WIFSTOPPED` / `SIGTRAP`。
+- **断点机制**：`INT3` / `0xCC` 软件断点、硬件断点 `DR0–DR3` + `DR7` L/G 位 + `DR6` 状态、`TF` 单步标志、页保护断点 `mprotect` / `VirtualProtect` / `PAGE_GUARD`、`SIGSEGV` 处理。
+- **进程内存**：`/proc/<pid>/maps` / `/proc/<pid>/mem` / `process_vm_readv` / `process_vm_writev` / `vm_area_struct`。
+- **链接与 hook**：`LD_PRELOAD` / `dlsym(RTLD_NEXT)` / `LD_AUDIT` / `link_map` / `r_debug` / `dl_iterate_phdr`；`GOT`/`PLT` 覆写、`IAT`/`EAT` hook、`inline hook` + `trampoline` + `detour`、`MinHook` / `Dobby` / `ShadowHook`。
+- **Frida Gum**：`Interceptor.attach` / `replace` / `NativeFunction` / `NativeCallback` / `Stalker.follow` / `Stalker.transform` / `GumInvocationContext` / `GumEvent` / `Memory.scan` / `Memory.protect` / `Module.enumerateRanges` / `Arm64Writer` / `X86Writer`。
+- **DBI / 模拟 / 反汇编框架**：`DynamoRIO` / `Intel PIN` / `QEMU TCG` / `Unicorn Engine` / `Capstone` / `Keystone` / `LLVM MC`；`Binary Ninja` 的 `LLIL → MLIL → HLIL → SSA` / `BinaryView` / `AnalysisContext` / IL lifting。
+- **Windows 例外与遥测**：`VEH` / `SEH` / `KiUserExceptionDispatcher` / `ETW` / `AMSI` `AmsiScanBuffer` patch / `ntdll` syscall stub / `SSN` / `Hell's Gate` / `Halo's Gate` / `direct syscall` / `indirect syscall`。
+
+#### J.4 符号执行 / SMT / 程序分析框架
+
+- **符号执行**：`path predicate` / `fork` / `path explosion` / `state merging` / `veritesting` / `concretization` / `symbolic memory` / `lazy initialization`。
+- **求解**：`SMT` / `SAT` / `Z3` `Solver` / `BitVec` / `Array` / `ForAll` / `simplify` / `unsat core` / `model` / `QF_BV` / `QF_AUFBV` / `bit-blasting`。
+- **angr**：`Project` / `factory` / `SimState` / `SimulationManager` / `claripy.BVS` / `BVV` / `SimProcedure` / `hook` / `CFGFast` / `CFGEmulated` / `Veritesting` / `explore(find, avoid)` / `call_state` / `state.posix.dumps` / `SimFile` / `SimMemory` / `state.inspect`。
+- **其它引擎**：`Triton` / `miasm` / `BAP` / `KLEE` / `S2E` / `SymCC` / `QSym`。
+- **静态分析结构**：`AST` / `CFG` / `DFG` / `PDG` / `CPG`（Code Property Graph）/ `basic block` / `dominator tree` / `post-dominator` / `natural loop` / `SSA` / `phi node` / `reaching definitions` / `def-use chain` / `points-to` / `Andersen` / `Steensgaard` / `k-CFA` / `context sensitivity` / `interprocedural summary` / `VSA`（value set analysis）/ `strided interval` / `affine relation`。
+- **CodeQL**：`TaintTracking::Configuration` / `isSource` / `isSink` / `isSanitizer` / `isAdditionalTaintStep` / `DataFlow::PathNode` / `DataFlow::PathGraph` / `path-problem` / `QL database` / `extractor` / `SARIF`。
+- **Semgrep**：`pattern-sources` / `pattern-sinks` / `pattern-sanitizers` / `metavariable` / `metavariable-pattern` / `metavariable-comparison` / `taint mode` / `SARIF`。
+- **Joern / LLVM**：`cpg.method` / `cpg.call` / `reachableBy` / `overflowdb`；`Module` / `Function` / `BasicBlock` / `Instruction` / `FunctionPass` / `mem2reg` / `DominatorTree` / `MLIR`。
+
+#### J.5 反编译还原与混淆对抗
+
+- **结构恢复**：`type propagation` / `VSA` / `affine relation` / `strided interval` / `jump table recovery` / `switch_info_t` / `indirect call resolution` / `vtable recovery` / `RTTI` / `.eh_frame` / `unwind info` / `LSDA` / `calling convention` / `prologue` / `epilogue` / `stack frame` / `sp-analysis failed` / `positive sp value`。
+- **化简**：`constant folding` / `constant propagation` / `copy propagation` / `CSE` / `DCE` / `peephole` / `MBA`（mixed boolean-arithmetic）化简 / `symbolic simplification`。
+- **混淆**：`control flow flattening`（CFF）/ `dispatcher` / `state variable` / `opaque predicate` / `bogus control flow` / `dead code insertion` / `instruction substitution` / `virtualization` / VM handler / `string encryption` / `import hiding`；`OLLVM` / `VMProtect` / `Themida`。
+- **脱壳**：`packer` / `OEP`（Original Entry Point）/ `IAT rebuilding` / `dump` / `Scylla` / `ImportREC` / `esp 定律` / 栈上内存断点 / `section hopping`。
+- **反调试**：`IsDebuggerPresent` / `NtQueryInformationProcess` / `TracerPid` / `RDTSC` 时序检查 / `INT3` 扫描 / `TLS callback`。
+
+#### J.6 二进制利用原语与缓解机制
+
+- **glibc heap**：`arena` / `malloc_state` / `mchunkptr` / `prev_size` / `size` / `fd` / `bk` / `fd_nextsize` / `bk_nextsize` / `tcache_entry` / `tcache_perthread_struct` / `fastbin` / `unsorted bin` / `smallbin` / `largebin` / `top chunk` / `last_remainder` / `unlink` / `consolidation` / `tcache poisoning` / `safe-linking` `PROTECT_PTR` / `house of *` / `__malloc_hook` / `__free_hook` / `_IO_list_all` / `FSOP` / `_IO_jump_t` vtable / `one_gadget`。
+- **利用原语**：`ROP` / `JOP` / `COP` / `COOP` / `DOP` / `ret2libc` / `ret2csu` / `ret2dlresolve` / `SROP` / `sigreturn` / `stack pivot` / `GOT overwrite` / `partial overwrite` / `format string` `%n` / `arbitrary read/write` / `heap feng shui` / `heap grooming` / `type confusion`。
+- **缓解机制**：`ASLR` / `KASLR` / `PIE` / `RELRO`（partial/full）/ `NX` / `DEP` / `W^X` / `stack canary` / `__stack_chk_fail` / `FORTIFY` / `CFI` / `shadow stack` / `CET` `IBT` / `SHSTK` / `PAC` / `MTE` / `CFG`（Windows Control Flow Guard）/ `ACG` / `SafeSEH` / `SEHOP` / `SMAP` / `SMEP` / `seccomp` / `HVCI` / `DSE`。
+- **内核**：`ioctl` / `IRP` / `MajorFunction` / `MmMapIoSpace` / `ProbeForRead` / `ProbeForWrite` / `copy_from_user` / `EPROCESS` / `token stealing` / `IDT` / `SSDT` / `MSR` / `SYSENTER` / `CR3` / `page table` / `EPT` / `SLAT` / `ObRegisterCallbacks` / `PsSetCreateProcessNotifyRoutine`。
+
+#### J.7 平台运行时内部
+
+- **Electron / V8**：`asar` header（pickle 编码 + JSON 目录）/ `app.asar.unpacked` / `node::Environment` / `V8 Isolate` / `Context` / `HandleScope` / `N-API` / native addon `.node` / `contextBridge` 的结构化克隆 / `ipcRenderer` / `ipcMain` / `MessagePort` / `preload` sandbox / `nodeIntegration` / `contextIsolation` / `sandbox` / `webSecurity` / `file://` origin / `--inspect-brk` / `NODE_OPTIONS` / `process.binding` / `BrowserWindow.webPreferences`。
+- **Android / ART**：`libart.so` / `JNIEnv` / `RegisterNatives` / `ArtMethod` / `art::ClassLinker` / `DexFile` / `OAT` / `ODEX` / `VDEX` / Quick compiled code / `JIT` / `binder` / `seccomp` / `TracerPid` / `LSPlant` / `Dobby` / `Zygisk` / `Riru`。
+- **Windows 原生**：`PEB` / `TEB` / `LdrLoadDll` / `InLoadOrderModuleList` / `IAT` / `EAT` / `delay import` / `TLS callback` / `.pdata` / `.xdata` / `unwind` / `SEH` / `VEH` / `ETW` / `AMSI` / `WLDP` / `minifilter`。
+
+### J.9 重建语义 · 权威层级 · 工具陷阱（最深一层）
+
+J.1–J.7 讲「调哪个 API、拿什么对象、读哪个字段」；这一层讲**这些对象是怎么算出来的、哪一层才是真相、以及工具会在哪骗你**。不掌握这层，模型会把伪代码当源码、把求解器的反例当结论、把桩函数当真实系统调用。
+
+#### J.9.1 权威层级（冲突时信谁）
+
+反编译 / 模拟产出的每层表示可信度不同；**下层是上层的事实来源，上层是下层的解释，不是相反**：
+
+```
+原始字节 → insn_t（反汇编，可靠） → mba_t / microcode（微码，CPU 实际执行语义，可靠）
+                                            ↓  Hex-Rays 翻译（可错）
+                                      cfunc_t（伪代码，是重建假设，不是事实）
+```
+
+- `insn_t`：按指令集解码的单条指令，是「能说什么被执行了」的下限，IDA 解码错极少见。
+- `mba_t`：Hex-Rays microcode，把指令归一成寄存器传输中间表示；**这才是 CPU 真正执行的语义**，不受 C 语法糖、源码结构干扰。
+- `cfunc_t`：由 `mba_t` 经 `gen_citers` + `mjst_*` 成熟度化简得到的类 C 伪代码。它是**解释不是事实**——化简越激进（`MMA_MAX`），越可能把等价但意图不同的结构合并掉，或把未识别的间接调用 / 栈别名当成「变量未使用 / 条件恒真」。
+- 规则：**伪代码与反汇编 / 微码冲突时，信反汇编与微码**。这条本身就是证据层级判据，落在 `sec-audit-02`。
+
+#### J.9.2 各工具会在哪骗你（失败模式）
+
+- **Hex-Rays 伪代码可错**：`switch` 计算跳转表、`setjmp/longjmp`、C++ 异常 / RAII 展开、可变参数、自定义调用约定、未解析间接调用、控制流扁平化之后，会产出「看着合理但语义错」的伪代码。判据：凡涉及上述结构，回 `insn_t`/`mba_t` 复核，不把伪代码当源码引用。
+- **IDA 栈帧错**：`sp-analysis failed` / `positive sp value` 表示栈指针分析失败，后续变量映射与参数识别全错。先 `Alt+K` 修 SP 或手动标 `stack frame`，再信变量。
+- **Ghidra Sleigh / P-code**：P-code 是寄存器传输抽象，不是真实 ISA；冗余前缀、变长指令前缀可能被错分，要看真实语义回原生反汇编。
+- **CodeQL `DataFlow`**：默认**不跨函数边界**流动，除非补 `isAdditionalTaintStep`；`isSanitizer` 会截断流；`path-problem` 必须实现 `PathNode`/`PathGraph` 才有路径证据；隐式流（控制依赖泄露，如 `if(secret) x=1`）默认不追踪。
+- **符号执行（angr / Triton）**：`path explosion`（循环 / 递归爆炸）、`SimProcedure` 把 syscall 桩成不建模内核行为的 stub、`concretization` 丢覆盖、`claripy` 只追你标成 taint 的变量，控制依赖的隐式流需手动加 `isAdditionalTaintStep`。
+- **`ptrace` 调试**：单步是 O(指令) 慢、追不到自修改代码、不加 `PTRACE_O_TRACECLONE` 不跟 `clone`/线程、目标检测到 `PTRACE_ATTACH` 直接退出（反调试）。
+- **Frida `Interceptor.attach`**：只 Hook 经该函数的调用，attach 之前已跑过的检查看不到；原生反 Frida（`/proc/self/maps` grep、`pthread_create` 检测、`frida-server` 端口探测）可绕过它。
+- **求解器（Z3）**：`simplify` 做理论感知重写；`model()` 给的是**一个**可满足赋值，不是唯一解，不能据「解存在」推断「这是实际输入」；`unsat` 只在你建模的范围内成立。
+
+#### J.9.3 内部算法（知其盲点）
+
+- **Hex-Rays**：`mba_t` 经 `gen_citers` 生成 `ctree`，再 `mjst_*` 做常量传播 / CSE / DCE；`MMA_*` 标记 microcode 成熟度，低成熟度意味着还有未化简分支。
+- **CodeQL**：先建 CPG，再对 `DataFlow` 边跑 Datalog 不动点；`TaintTracking::Configuration` 本质是带 `isSource`/`isSink`/`isSanitizer` 边过滤的可达性查询。
+- **angr**：`CFGEmulated` 用 unicorn 单步出较准 CFG（慢），`CFGFast` 线性扫描快但不准；`explore(find, avoid)` 是在 SimState 上做图搜索。
+- **Z3**：`BitVec` 定宽、`Array` 建模内存、`QF_BV` 位向量理论、`unsat core` 给导致不可满足的最小约束集。
+
+### J.8 表层入口动作（快捷键与命令行）
+
+以下是**入口层**操作，只说明「怎么敲」，不涉及工具内部对象；调用层术语见 J.1–J.7。标准写法：**工具名 + 具体指令 + 要看的输出**，避免只写「用 IDA 分析」这种没有动作的表述。
+
+**IDA Pro / Hex-Rays**
+
+| 指令 | 动作 | 看什么 |
+|---|---|---|
+| `F5` | Hex-Rays 反编译伪代码 | 参数类型、返回值流向 |
+| `Shift+F12` | Strings 窗口 | 硬编码口令、URL、错误串、格式化串 |
+| `Ctrl+X` | xrefs to（交叉引用） | 谁引用了这个字符串/函数，回溯调用点 |
+| `Alt+T` / `Alt+B` | 文本 / 字节序列搜索 | 指令特征、常量、shellcode |
+| `N` | 重命名函数或变量 | 让后续跳表可读 |
+| `Y` | 设置变量或函数类型 | 修正被识别成 `int` 的指针/结构体 |
+| `G` | 跳转到地址 | 从日志/崩溃地址回到代码 |
+| `Space` | 图形 / 文本视图切换 | 分支与循环结构 |
+| `F2` / `F7` / `F8` / `F9` | 下断 / 步入 / 步过 / 运行 | 运行时寄存器与栈 |
+| `IDAPython` | `idautils.XrefsTo()`、`ida_hexrays.decompile()`、`idc.get_name_ea_simple()` | 批量导出跳表、自动标注 |
+| `FLIRT` / `Lumina` | 库函数识别 / 云端签名 | 剥离静态链接的 libc 等已知函数 |
+| `IDB` / `.i64` | 分析数据库 | 保存重命名与注释成果 |
+| `Imports` / `Exports` / `Names` / `callgraph` / `stack frame` | 视图与结构 | 攻击面清单、调用关系、栈布局 |
+
+**Ghidra**：`CodeBrowser`、`Decompiler`、`Defined Strings`、`References → Show References to`、`analyzeHeadless`（-import / -postScript）、`Ghidra Script`（Java / Jython）。
+
+**gdb / pwndbg / gef**：`break *0xADDR`、`run` / `continue`、`ni` / `si`、`x/20gx $rsp`、`info registers`、`disassemble`、`cyclic 200` / `cyclic -l`、`checksec`、`vmmap`、`telescope`、`rop`、`set follow-fork-mode child`、`set disable-randomization on`。
+
+**pwntools**：`process()` / `remote()`、`ELF()` / `ROP()`、`p64()` / `u64()`、`sendlineafter()` / `recvuntil()`、`gdb.debug()`、`asm()` / `shellcraft`、`context.arch` / `context.log_level`。
+
+**ELF / binutils**：`file`、`readelf -h` / `-S` / `-s` / `-r`、`objdump -d -M intel`、`nm -D`、`strings -a`、`ldd`、`strace -f` / `ltrace`、`patchelf --set-interpreter`；结构名 `GOT` / `PLT`、`RPATH` / `RUNPATH`、`RELRO` / `NX` / `PIE` / `STACK CANARY` / `FORTIFY`。
+
+**radare2 / rizin**：`r2 -A`、`aaa`、`afl`、`s sym.main`、`pdf @ main`、`izz`、`axt`、`V`、`/R`。
+
+**Frida / objection**：`frida -U -f <pkg> -l hook.js --no-pause`、`frida-trace -U -i open <pkg>`、`Interceptor.attach()`、`Java.perform()`、`Module.findExportByName()`、`objection -g <pkg> explore`、`android sslpinning disable`。
+
+**Android / Electron / 解包**：`jadx -d out app.apk`、`apktool d app.apk`、`dex2jar`、`adb shell`、`aapt dump badging`、`drozer`；`asar e app.asar out/`（`npx asar extract`）、`app.asar.unpacked`、`nodeIntegration` / `contextIsolation` / `contextBridge` / `preload`。
+
+**SAST / 依赖**：`semgrep --config=auto .`、`codeql database create` / `analyze`、`trivy fs` / `trivy image`、`syft` / `grype`、`npm audit`、`pip-audit`、`dependency-check`。
+
+**Burp / DevTools**：`Ctrl+R`（Send to Repeater）、`Proxy → Intercept`、`Intruder`、`Comparer`、`Export as HAR`、`sitemap`；`Ctrl+Shift+F`（全局搜索）、`Sources → Pretty Print`、`Network → Export HAR`、`source-map-explorer`、`webpack chunk`。
+
+**HTTP / 网络 / 侦察**：`curl -i` / `-v` / `-X` / `-H` / `--data-binary` / `--path-as-is` / `-k` / `--proxy`；`tshark -r x.pcap -Y "http.request" -T fields`、`Follow TCP Stream`；`nmap -sS` / `-sV` / `-sC` / `-A` / `-Pn` / `-p-` / `--min-rate`；`ffuf -w params.txt -u "URL?FUZZ=1" -fs 0`、`arjun -u URL`、`feroxbuster`、`gf`、`sqlmap -r req.txt --batch`；`hashcat -m <mode>` / `john`。
+
+**云 / 容器 / 其它**：`aws sts get-caller-identity`、`kubectl auth can-i --list`、`docker inspect`、`xxd -g1`、`binwalk -e`、`jq`、`git grep`。
+
+> 收录原则：只写**可执行的动作名与命令**，不写工具的安装配置、不写任何针对具体对象的操作步骤。命令里的 `<pkg>` / `URL` 等只是占位写法。
+
 ---
 
 ## 三、覆盖实测（机器可查）
@@ -259,3 +426,55 @@
 - 术语整理不涉及提示词结构、任务树、输出分段、置信度模板等设计研究；那些属于另一类工作，不在本表范围内。
 - 内容只取自公开标准与类目索引，不涉及任何具体目标或本地工作产物。
 - 验证方式：`npm run test`（150 张定额、长度与唯一性、tags、变量登记、英译层覆盖与无中文、判据契约）、`npx tsc --noEmit`、`npm run build`。
+
+---
+
+## 七、操作术语落地（2026-11-04 补，同日第二轮重写）
+
+### 第一轮（已作废）
+
+先按「怎么敲」补过一批快捷键与命令行（`F5` / `ffuf -w` / `asar e`），落地 5 张卡。复核后判定**层级太浅**：只有入口动作，没说清调哪个 API、拿到什么对象、核对哪个字段，模型仍会把伪代码、反汇编与运行时观测混成一层证据。这批内容已降级为 J.8「表层入口动作」，仅作索引保留。
+
+### 第二轮（现行）：调用层落地
+
+把 3 张卡升级到**对象与字段级**，中英双层同步；另 2 张保留入口层动作，作为「表层 → 调用层」的对照。仍不增删卡片、分类配额不变。
+
+| 卡 | 表层（第一轮） | 调用层（现行） |
+|---|---|---|
+| `sec-audit-02` 逐跳污点跳表 | `Shift+F12` / `Ctrl+X` / `F5` / `N` / `Y` | `idautils.XrefsTo` → `xrefblk_t`，按 `fl_CN`/`fl_CF` 分调用与跳转；`decompile()` → `cfunc_t` → `ctree`；伪代码与 `microcode` 冲突信下层 |
+| `sec-audit-11` 静态→动态 | `semgrep --config=auto .` / `gdb` 下断 | `CodeQL DataFlow::PathNode` 从 `isSource` 追到 `isSink`；`ptrace(PTRACE_GETREGS)` 取寄存器、`SIGTRAP` 判命中 |
+| `pentest-07` 保留原始证据 | `Ctrl+R` / `Export as HAR` / `tshark -r` | `IHttpListener` 抓原始字节、`HAR entries[].request/response` 字段级留痕、`tshark Follow TCP Stream` |
+| `pentest-09` 参数侦察 | `arjun -u` / `ffuf -w ... -fs 0` | 保留入口层（本轮未升级） |
+| `pentest-22` 泄露面扫描 | `asar e app.asar out/` | 保留入口层（本轮未升级） |
+
+写法约束：
+
+- 深术语进卡必须**带对象或字段**（`xrefblk_t` 的 `.type`、`cfunc_t` 的 `ctree`、`DataFlow::PathNode`），只列 API 名等于换个姿势堆名词。
+- 保留原有命中与否证判据；新增的「伪代码与 microcode 冲突信下层」本身就是一条**证据层级判据**，不是装饰。
+- 卡正文避开 `{...}`：`compose` 会把花括号内容当变量提取，未登记就测试失败（`entries[].request`、`ptrace(...)` 的方括号与圆括号不受影响）。
+- 中英双限：中文 ≤160 字、英文 ≤480 字符。本轮 3 张中文改后最长 158 字，英文最长 468 字符。
+- J.1–J.7 的整族术语（Ghidra/P-code、Frida Gum、angr/Z3、glibc heap、缓解机制、平台运行时）**只收进术语表**：每族都是完整专题，整族塞进单张卡只会变成没有动作的清单；但**单条机制判据可以落卡**，见第三轮。
+- 「卡正文已顶到 160 字」这一说法只对第二轮改过的 5 张卡成立，不是全库结论。全库体检（150 张中文 + 150 张英文）显示：117 张中文卡还剩 ≥20 字余量，英文层普遍剩 200–340 字符。**不需要换卡腾配额**。
+
+### 第三轮（本轮）：机制与陷阱层 + 落卡
+
+第二轮的「对象 / 字段级」仍停在「调什么」；再深一层是「**这对象怎么算出来、哪层是真相、工具会在哪骗你**」，新增 **J.9 重建语义 · 权威层级 · 工具陷阱**。
+
+J.9 的三块内容：
+
+- **J.9.1 权威层级**：`原始字节 → insn_t（可靠）→ mba_t/microcode（可靠，CPU 实际执行）→ cfunc_t（重建假设，可错）`；规则是冲突时信下层，不把伪代码当源码。
+- **J.9.2 失败模式**：逐一列出 Hex-Rays / IDA 栈帧 / Ghidra P-code / CodeQL DataFlow / 符号执行 / ptrace / Frida / Z3 各自会在哪骗人（计算跳转表、`sp-analysis failed`、不跨函数、path explosion、`PTRACE_ATTACH` 反调试、`/proc/self/maps` 反 Frida、`model()` 只给一个解等）。
+- **J.9.3 内部算法**：Hex-Rays `gen_citers` + `mjst_*`、CodeQL CPG + Datalog 不动点、angr `CFGEmulated`/`CFGFast`/`explore`、Z3 `BitVec`/`Array`/`QF_BV`/`unsat core`，点明每家的盲点来源。
+
+**本轮真正落卡 4 张**（不增删卡、不改既有判据、中英双层同步），把 J.9 的机制层压成可核对的否证判据，而不是只在文档里堆名词：
+
+| 卡 | 语义落点 | 补进去的机制判据 | J.9 出处 |
+|---|---|---|---|
+| `sec-audit-19` 只报可验证结论 | 原本只管「代码要真读过」 | 反编译伪代码与求解器 `model` 只是重建假设，不是源码或运行时事实；冲突时回 `insn_t`/`mba_t` 微码或动态观测复核 | J.9.1 / J.9.2 |
+| `sec-audit-06` 标注可利用性 | 原本只给三级分级 | 静态流不跨函数边界需补 `isAdditionalTaintStep`；符号执行的 `SimProcedure` 是桩、`path explosion` 会漏路径；**别把工具建模盲区写成阻断点** | J.9.2 |
+| `pentest-02` 先自检我方环境 | 原本只管「工具故障别写成目标不存在」 | 插桩前查 `TracerPid` 与 `/proc/self/maps`，防反调试让 `Frida` 静默失效 | J.9.2 |
+| `output-04` 证据与引用 | 原本只管「只归纳不下结论」 | 引用反编译结果须注明是 `cfunc_t` 伪代码层，不得当源码引用 | J.9.1 |
+
+4 张卡各补一个工具术语 tag（`microcode` / `SimProcedure` / `Frida` / `cfunc_t`），界面按工具名可搜。落卡后全库体检：中文最长 160/160、英文最长 470/480，**0 超限**。
+
+判定：J.9 的机制层已能落成「工具结果哪层可信、工具会在哪骗你」这类**否证判据**，这是它进 prompt 的正确形态；整族术语仍留 J 节备查。

@@ -25,8 +25,8 @@ export const OUTPUT_EN: Record<string, CardI18n> = {
   },
   'builtin:output-04': {
     title: 'Evidence and citations',
-    text: 'Every conclusion must cite evidence: file and line, command and output, or a link; label anything unverifiable as inference; when relaying tool output or pages, summarize only and never conclude — keep field names and values verbatim (port with service and version, parameter with its value), no speculation',
-    tags: ['evidence', 'citations'],
+    text: 'Every conclusion must cite evidence: file and line, command and output, or a link; label anything unverifiable as inference; when relaying tool output or pages, summarize only and never conclude — keep field names and values verbatim (port with service and version, parameter with its value), no speculation; cite decompiler output as cfunc_t pseudocode, never as source',
+    tags: ['evidence', 'citations', 'cfunc_t'],
   },
   'builtin:output-05': {
     title: 'Conclusion first',
